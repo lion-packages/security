@@ -1,6 +1,6 @@
 {
     "name": "lion-framework/lion-security",
-    "description": "Library created with the function of implementing AES and RSA Security functions for PHP.",
+    "description": "Library created with the function of implementing AES, RSA and JWT Security functions for PHP.",
     "type": "library",
     "license": "MIT",
     "autoload": {
