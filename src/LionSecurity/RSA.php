@@ -16,13 +16,13 @@ class RSA {
 	public static function init(): void {
 		if (self::$public_key === null) {
 			self::$public_key = openssl_pkey_get_public(
-				file_get_contents('app/Server/Secret/public.key')
+				file_get_contents('resources/secret/public.key')
 			);
 		}
 
 		if (self::$private_key === null) {
 			self::$private_key = openssl_pkey_get_private(
-				file_get_contents('app/Server/Secret/private.key')
+				file_get_contents('resources/secret/private.key')
 			);
 		}
 	}
