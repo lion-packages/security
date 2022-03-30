@@ -8,26 +8,27 @@ class RSA {
 
 	public static ?OpenSSLAsymmetricKey $public_key = null;
 	public static ?OpenSSLAsymmetricKey $private_key = null;
+	public static string $path = "resources/secret/";
 
 	public function __construct() {
 
 	}
 
-	public static function init(): void {
+	private static function init(): void {
 		if (self::$public_key === null) {
 			self::$public_key = openssl_pkey_get_public(
-				file_get_contents('resources/secret/public.key')
+				file_get_contents(self::$path . 'public.key')
 			);
 		}
 
 		if (self::$private_key === null) {
 			self::$private_key = openssl_pkey_get_private(
-				file_get_contents('resources/secret/private.key')
+				file_get_contents(self::$path . 'private.key')
 			);
 		}
 	}
 
-	public static function createKeys(string $path): void {
+	public static function createKeys(?string $url_path = null): void {
 		$options = [
 			'config' => $_ENV['RSA_PATH'],
 			'private_key_bits' => $_ENV['RSA_PRIVATE_KEY_BITS'],
@@ -38,8 +39,13 @@ class RSA {
 		openssl_pkey_export($generate, $private, null, $options);
 		$public = openssl_pkey_get_details($generate);
 
-		file_put_contents("{$path}private.key", $private);
-		file_put_contents("{$path}public.key", $public['key']);
+		if ($url_path != null) {
+			file_put_contents("{$url_path}private.key", $private);
+			file_put_contents("{$url_path}public.key", $public['key']);
+		} else {
+			file_put_contents(self::$path . 'private.key', $private);
+			file_put_contents(self::$path . 'public.key', $public['key']);
+		}
 	}
 
 	public static function encode(object $files): object {
