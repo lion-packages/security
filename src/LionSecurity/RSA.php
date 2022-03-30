@@ -14,7 +14,7 @@ class RSA {
 
 	}
 
-	private static function init(): void {
+	public static function init(): void {
 		if (self::$public_key === null) {
 			self::$public_key = openssl_pkey_get_public(
 				file_get_contents(self::$path . 'public.key')
