@@ -225,7 +225,7 @@ The security class is implemented to dynamically work some methods.
 
  - VALIDATE
 	This function interacts with [VALITRON](https://github.com/vlucas/valitron), The first parameter is an array with all the properties which we are going to verify if they meet the established requirements, The second parameter is an array the which contains all the rules which specify all the parameters to check. <br>
-	More information at [php.net](https://github.com/vlucas/valitron#built-in-validation-rules).
+	More information at [VALITRON](https://github.com/vlucas/valitron#built-in-validation-rules).
 	```php
 	$request = SECURITY::validate([], []);
 	var_dump($request)
