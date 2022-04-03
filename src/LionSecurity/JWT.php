@@ -21,12 +21,12 @@ class JWT {
 			"jti" => base64_encode(random_bytes(16)),
 			"iat" => $now,
 			"nbf" => $now,
-			'exp' => $now + ($time === 0 ? 86400 : $time),
+			'exp' => $now + $_ENV['JWT_EXP'],
 			'data' => $data
 		], RSA::$private_key, $_ENV['JWT_DEFAULT_MD']);
 	}
 
-	public static function decode(string $jwt) : object {
+	public static function decode(string $jwt): object {
 		RSA::init();
 
 		return FJWT::decode(

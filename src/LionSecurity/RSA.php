@@ -8,7 +8,7 @@ class RSA {
 
 	public static ?OpenSSLAsymmetricKey $public_key = null;
 	public static ?OpenSSLAsymmetricKey $private_key = null;
-	public static string $path = "resources/secret/";
+	public static string $url_path = "resources/upload_files/";
 
 	public function __construct() {
 
@@ -17,13 +17,13 @@ class RSA {
 	public static function init(): void {
 		if (self::$public_key === null) {
 			self::$public_key = openssl_pkey_get_public(
-				file_get_contents(self::$path . 'public.key')
+				file_get_contents(self::$url_path . 'public.key')
 			);
 		}
 
 		if (self::$private_key === null) {
 			self::$private_key = openssl_pkey_get_private(
-				file_get_contents(self::$path . 'private.key')
+				file_get_contents(self::$url_path . 'private.key')
 			);
 		}
 	}
@@ -43,8 +43,8 @@ class RSA {
 			file_put_contents("{$url_path}private.key", $private);
 			file_put_contents("{$url_path}public.key", $public['key']);
 		} else {
-			file_put_contents(self::$path . 'private.key', $private);
-			file_put_contents(self::$path . 'public.key', $public['key']);
+			file_put_contents(self::$url_path . 'private.key', $private);
+			file_put_contents(self::$url_path . 'public.key', $public['key']);
 		}
 	}
 
