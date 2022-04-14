@@ -1,4 +1,4 @@
 /vendor/
-/resources/
+/storage/
 .env
 index.php
