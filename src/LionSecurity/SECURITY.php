@@ -18,24 +18,27 @@ class SECURITY {
 		return password_hash($file, PASSWORD_BCRYPT, $config);
 	}
 
-	public static function passwordVerify(string $password, string $confirm_password): bool {
-		return password_verify($password, $confirm_password);
-	}
-
-	public static function validate(array $files, array $rules): bool {
+	public static function validate(array $files, array $rules): object {
 		$validator = new Validator($files);
 		$validator->rules($rules);
-		return $validator->validate();
+
+		if ($validator->validate()) {
+			return (object) [
+				'status' => true,
+				'message' => "",
+				'data' => []
+			];
+		} else {
+			return (object) [
+				'status' => false,
+				'message' => $validator->errors(),
+				'data' => []
+			];
+		}
 	}
 
-	public static function sha256(object $files): object {
-		$data_list = [];
-
-		foreach ($files as $key => $file) {
-			$data_list[$key] = hash('sha256', $file);
-		}
-
-		return (object) $data_list;
+	public static function sha256(string $value): string {
+		return hash('sha256', $value);
 	}
 
 }

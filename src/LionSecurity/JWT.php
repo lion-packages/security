@@ -29,15 +29,17 @@ class JWT {
 	public static function decode(string $jwt): object {
 		RSA::init();
 
+		if ($jwt === 'null' || $jwt === null) {
+			return (object) ['status' => "error", 'message' => "The JWT does not exist."];
+		}
+
 		try {
-			$jwt = FBJWT::decode(
-				$jwt, new Key(RSA::$public_key, $_ENV['JWT_DEFAULT_MD'])
-			);
+			$jwtDec = FBJWT::decode($jwt, new Key(RSA::$public_key, $_ENV['JWT_DEFAULT_MD']));
 
 			return (object) [
 				'status' => "success",
 				'message' => "JWT decoded successfully.",
-				'data' => $jwt->data
+				'data' => $jwtDec->data
 			];
 		} catch (SignatureInvalidException $e) {
 			return (object) ['status' => "error", 'message' => $e->getMessage()];
@@ -45,12 +47,12 @@ class JWT {
 			return (object) ['status' => "error", 'message' => $e->getMessage()];
 		} catch (ExpiredException $e) {
 			return (object) ['status' => "error", 'message' => $e->getMessage()];
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			return (object) ['status' => "error", 'message' => $e->getMessage()];
 		}
 	}
 
-	public static function getToken(): string {
+	public static function get(): string {
 		$headers = apache_request_headers();
 
 		if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
