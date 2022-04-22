@@ -24,13 +24,13 @@ class SECURITY {
 
 		if ($validator->validate()) {
 			return (object) [
-				'status' => true,
+				'status' => 'success',
 				'message' => "",
 				'data' => []
 			];
 		} else {
 			return (object) [
-				'status' => false,
+				'status' => 'error',
 				'message' => $validator->errors(),
 				'data' => []
 			];
