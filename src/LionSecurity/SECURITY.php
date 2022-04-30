@@ -31,8 +31,8 @@ class SECURITY {
 		} else {
 			return (object) [
 				'status' => 'error',
-				'message' => $validator->errors(),
-				'data' => []
+				'message' => "",
+				'data' => $validator->errors()
 			];
 		}
 	}
