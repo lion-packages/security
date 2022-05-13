@@ -51,20 +51,6 @@ return [
 ];
 ```
 
-Note that the public and private key creation operation must be executed. <br>
-An example of execution could be to make an HTTP request where they execute the creation of keys, more information on the use of [Route](https://github.com/Sleon4/Lion-Route).
-```php
-Route::post('create-key', function() {
-	FILES::folder();
-	RSA::createKeys();
-
-	return [
-		'status' => 'success',
-		'message' => 'Keys created successfully.'
-	];
-});
-```
-
 ### 1.1 RSA ENCODE
 To encrypt data with aes an stdClass object must be specified, You must send an array and parse it.
 ```php
