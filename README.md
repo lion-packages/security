@@ -11,15 +11,12 @@ composer require lion-framework/lion-security
 ### 1. RSA
 RSA interacts with properties set in `.env`, where the properties we use must be specified. <br>
 
-- RSA_PATH
-- RSA_PRIVATE_KEY_BITS
-- RSA_DEFAULT_MD
-
 #### Example
-
-- RSA_PATH="C:/xampp/php/extras/openssl/openssl.cnf"
-- RSA_PRIVATE_KEY_BITS=2048
-- RSA_DEFAULT_MD="sha256"
+```shell
+RSA_PATH="C:/xampp/php/extras/openssl/openssl.cnf"
+RSA_PRIVATE_KEY_BITS=2048
+RSA_DEFAULT_MD="sha256"
+```
 
 To create the public and private key, it can be done in 2 ways. Keep in mind that the classes required for its operation must be imported. More information on [FILES](https://github.com/Sleon4/Lion-Files). <br>
 ```php
@@ -95,15 +92,13 @@ var_dump($rsaDec);
 ### 2. AES
 AES interacts with the properties set in .env, where the properties we use must be specified.
 
-- AES_METHOD
-- AES_KEY
-- AES_IV
-
 #### Example
 
-- AES_METHOD="aes-256-cbc"
-- AES_KEY="AES_KEY-12345-KY"
-- AES_IV="AES_IV-123456-IV"
+```shell
+AES_METHOD="aes-256-cbc"
+AES_KEY="AES_KEY-12345-KY"
+AES_IV="AES_IV-123456-IV"
+```
 
 ### 2.1 AES ENCODE
 To encrypt data with aes an stdClass object must be specified, You must send an array and parse it.
@@ -134,17 +129,13 @@ var_dump($aesDec);
 ### 3. JWT
 JWT interacts with the properties established in `.env`, where the properties we use must be specified. It is mandatory to create the public and private key with RSA beforehand, because JWT requires a public and private key for its operation.
 
-- SERVER_URL
-- SERVER_URL_AUD
-- JWT_DEFAULT_MD
-- JWT_EXP
-
 #### Example
-
-- SERVER_URL="http://localhost/Lion-Framework/Lion-Security/"
-- SERVER_URL_AUD="http://localhost:3000/"
-- JWT_DEFAULT_MD="RS256"
-- JWT_EXP=86400
+```shell
+SERVER_URL="http://localhost/Lion-Framework/Lion-Security/"
+SERVER_URL_AUD="http://localhost:3000/"
+JWT_DEFAULT_MD="RS256"
+JWT_EXP=86400
+```
 
 ### 3.1 JWT ENCODE
 The function works with 2 parameters, The first parameter is an array with the data to be added to the JWT, The second parameter is optional and it is the lifetime of the JWT.
@@ -224,10 +215,10 @@ The security class is implemented to dynamically work some methods.
 	```
 
  - VALIDATE
-	This function interacts with [VALITRON](https://github.com/vlucas/valitron), The first parameter is an array with all the properties which we are going to verify if they meet the established requirements, The second parameter is an array the which contains all the rules which specify all the parameters to check. <br>
+	This function interacts with [Valitron](https://github.com/vlucas/valitron), The first parameter is an array with all the properties which we are going to verify if they meet the established requirements, The second parameter is an array the which contains all the rules which specify all the parameters to check. <br>
 	More information at [VALITRON](https://github.com/vlucas/valitron#built-in-validation-rules).
 	```php
-	$request = SECURITY::validate([], []);
+	$request = SECURITY::validate($_POST, []);
 	var_dump($request)
 	```
 
