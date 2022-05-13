@@ -21,7 +21,7 @@ class JWT {
 			"jti" => base64_encode(random_bytes(16)),
 			"iat" => $now,
 			"nbf" => $now,
-			'exp' => $now + $_ENV['JWT_EXP'],
+			'exp' => $now + (int) $_ENV['JWT_EXP'],
 			'data' => $data
 		], RSA::$private_key, $_ENV['JWT_DEFAULT_MD']);
 	}
