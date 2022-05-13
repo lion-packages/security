@@ -31,7 +31,7 @@ class RSA {
 	public static function createKeys(?string $url_path = null): void {
 		$options = [
 			'config' => $_ENV['RSA_PATH'],
-			'private_key_bits' => $_ENV['RSA_PRIVATE_KEY_BITS'],
+			'private_key_bits' => (int) $_ENV['RSA_PRIVATE_KEY_BITS'],
 			'default_md' => $_ENV['RSA_DEFAULT_MD']
 		];
 
