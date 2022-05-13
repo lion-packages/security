@@ -26,7 +26,7 @@ class JWT {
 		], RSA::$private_key, $_ENV['JWT_DEFAULT_MD']);
 	}
 
-	public static function decode(string $jwt): object {
+	public static function decode(?string $jwt): object {
 		RSA::init();
 
 		if ($jwt === 'null' || $jwt === null) {
