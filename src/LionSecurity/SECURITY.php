@@ -11,10 +11,7 @@ class SECURITY {
 	}
 
 	public static function passwordHash(string $file, array $config = []): string {
-		$config = count($config) > 0 ? $config : [
-			'cost' => 10
-		];
-
+		$config = count($config) > 0 ? $config : ['cost' => 10];
 		return password_hash($file, PASSWORD_BCRYPT, $config);
 	}
 
@@ -23,17 +20,9 @@ class SECURITY {
 		$validator->rules($rules);
 
 		if ($validator->validate()) {
-			return (object) [
-				'status' => 'success',
-				'message' => "",
-				'data' => []
-			];
+			return (object) ['status' => 'success', 'message' => "", 'data' => []];
 		} else {
-			return (object) [
-				'status' => 'error',
-				'message' => "",
-				'data' => $validator->errors()
-			];
+			return (object) ['status' => 'error', 'message' => "", 'data' => $validator->errors()];
 		}
 	}
 

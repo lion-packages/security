@@ -2,7 +2,8 @@
 
 namespace LionSecurity;
 
-use Firebase\JWT\{ SignatureInvalidException, BeforeValidException, ExpiredException, Key, JWT as FBJWT };
+use Firebase\JWT\{ SignatureInvalidException, BeforeValidException, ExpiredException };
+use Firebase\JWT\{ Key, JWT as FBJWT };
 use LionSecurity\RSA;
 
 class JWT {

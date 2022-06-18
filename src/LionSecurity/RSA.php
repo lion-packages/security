@@ -8,7 +8,7 @@ class RSA {
 
 	public static ?OpenSSLAsymmetricKey $public_key = null;
 	public static ?OpenSSLAsymmetricKey $private_key = null;
-	public static string $url_path = "storage/upload_files/";
+	public static string $url_path = "storage/secret-key/";
 
 	public function __construct() {
 
