@@ -1,6 +1,6 @@
 # Lion-Security
 ## Library created with the function of implementing AES, RSA and JWT Security functions for PHP.
-[![Latest Stable Version](http://poser.pugx.org/lion-framework/lion-security/v)](https://packagist.org/packages/lion-framework/lion-security) [![Total Downloads](http://poser.pugx.org/lion-framework/lion-security/downloads)](https://packagist.org/packages/lion-framework/lion-security) [![Latest Unstable Version](http://poser.pugx.org/lion-framework/lion-security/v/unstable)](https://packagist.org/packages/lion-framework/lion-security) [![License](http://poser.pugx.org/lion-framework/lion-security/license)](https://packagist.org/packages/lion-framework/lion-security) [![PHP Version Require](http://poser.pugx.org/lion-framework/lion-security/require/php)](https://packagist.org/packages/lion-framework/lion-security)
+[![Latest Stable Version](http://poser.pugx.org/lion-framework/lion-security/v)](https://packagist.org/packages/lion-framework/lion-security) [![Total Downloads](http://poser.pugx.org/lion-framework/lion-security/downloads)](https://packagist.org/packages/lion-framework/lion-security) [![License](http://poser.pugx.org/lion-framework/lion-security/license)](https://packagist.org/packages/lion-framework/lion-security) [![PHP Version Require](http://poser.pugx.org/lion-framework/lion-security/require/php)](https://packagist.org/packages/lion-framework/lion-security)
 
 ## Install
 ```shell
