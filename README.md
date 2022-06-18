@@ -27,7 +27,7 @@ use LionFiles\FILES;
 LionFiles is an external library, We call the folder function to create the folders of the established path, `FILES::folder('path')` takes care of creating the folders of a given path. <br>
 
 #### Example #1.
-In this first option we can create the keys automatically in an internally established route `'resources/upload_files/'`, which when looking at your directories will have new folders and files in the respective `'resources/upload_files/'` path.
+In this first option we can create the keys automatically in an internally established route `'storage/secret-key/'`, which when looking at your directories will have new folders and files in the respective `'storage/secret-key/'` path.
 ```php
 FILES::folder();
 RSA::createKeys();
@@ -159,7 +159,7 @@ var_dump($jwtDec);
 ### 3.3 RETRIEVE JWT
 In order to retrieve the JWT, It must be sent through a header. When sending your HTTP request, Ihe JWT is not attached to the data, So we must obtain the JWT from the headers sent.
 ```php
-$jwtDec = JWT::decode(JWT::getToken());
+$jwtDec = JWT::decode(JWT::get());
 var_dump($jwtDec);
 ```
 
