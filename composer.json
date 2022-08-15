@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": ">=8.0.9",
+        "php": ">=8.0",
         "vlucas/valitron": "^1.4",
         "firebase/php-jwt": "^6.1",
         "vlucas/phpdotenv": "^5.4"
