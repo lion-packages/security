@@ -4,7 +4,7 @@ namespace LionSecurity;
 
 use Valitron\Validator;
 
-class SECURITY {
+class Validation {
 
 	public function __construct() {
 
