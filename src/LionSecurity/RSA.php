@@ -48,7 +48,7 @@ class RSA {
 		}
 	}
 
-	public static function encode(object $files): object {
+	public static function encode(array $files): object {
 		self::init();
 		$data_list = [];
 
@@ -60,7 +60,7 @@ class RSA {
 		return (object) $data_list;
 	}
 
-	public static function decode(object $files): object {
+	public static function decode(array $files): object {
 		self::init();
 		$data_list = [];
 

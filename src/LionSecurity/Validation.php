@@ -2,6 +2,7 @@
 
 namespace LionSecurity;
 
+use Closure;
 use Valitron\Validator;
 
 class Validation {
@@ -15,14 +16,14 @@ class Validation {
 		return password_hash($file, PASSWORD_BCRYPT, $config);
 	}
 
-	public static function validate(array $files, array $rules): object {
+	public static function validate(array $files, Closure $validateFunction): object {
 		$validator = new Validator($files);
-		$validator->rules($rules);
+		$validateFunction($validator);
 
 		if ($validator->validate()) {
-			return (object) ['status' => 'success', 'message' => "", 'data' => []];
+			return (object) ['status' => 'success', 'message' => "validations have been completed"];
 		} else {
-			return (object) ['status' => 'error', 'message' => "", 'data' => $validator->errors()];
+			return (object) ['status' => 'error', 'messages' => $validator->errors()];
 		}
 	}
 

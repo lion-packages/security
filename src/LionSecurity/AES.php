@@ -8,7 +8,7 @@ class AES {
 
 	}
 
-	public static function encode(object $files, string $select_key, string $select_iv): object {
+	public static function encode(array $files, string $select_key, string $select_iv): object {
 		$data_list = [];
 
 		foreach ($files as $key => $file) {
@@ -20,7 +20,7 @@ class AES {
 		return (object) $data_list;
 	}
 
-	public static function decode(object $files, string $select_key, string $select_iv): object {
+	public static function decode(array $files, string $select_key, string $select_iv): object {
 		$data_list = [];
 
 		foreach ($files as $key => $file) {
