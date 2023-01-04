@@ -1,14 +1,12 @@
 # Lion-Security
 
-[![Latest Stable Version](http://poser.pugx.org/lion-framework/lion-security/v)](https://packagist.org/packages/lion-framework/lion-security) [![Total Downloads](http://poser.pugx.org/lion-framework/lion-security/downloads)](https://packagist.org/packages/lion-framework/lion-security) [![License](http://poser.pugx.org/lion-framework/lion-security/license)](https://packagist.org/packages/lion-framework/lion-security) [![PHP Version Require](http://poser.pugx.org/lion-framework/lion-security/require/php)](https://packagist.org/packages/lion-framework/lion-security)
+[![Latest Stable Version](http://poser.pugx.org/lion/security/v)](https://packagist.org/packages/lion/security) [![Total Downloads](http://poser.pugx.org/lion/security/downloads)](https://packagist.org/packages/lion/security) [![License](http://poser.pugx.org/lion/security/license)](https://packagist.org/packages/lion/security) [![PHP Version Require](http://poser.pugx.org/lion/security/require/php)](https://packagist.org/packages/lion/security)
 
 ## Install
 
 ```shell
-composer require lion-framework/lion-security
+composer require lion/security
 ```
-
-[full documentation](https://lion-client.vercel.app/)
 
 ## License
 
