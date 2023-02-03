@@ -56,9 +56,13 @@ class JWT {
 	public static function get(): string {
 		$headers = apache_request_headers();
 
-		if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
-			return $matches[1];
+		if (isset($headers['Authorization'])) {
+			if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+				return $matches[1];
+			}
 		}
+
+		return false;
 	}
 
 }
