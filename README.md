@@ -10,4 +10,4 @@ composer require lion/security
 
 ## License
 
-The Lion-Route library is open source software licensed under the [MIT License](https://github.com/Sleon4/Lion-Security/blob/main/LICENSE).
+The Lion-Security library is open source software licensed under the [MIT License](https://github.com/Sleon4/Lion-Security/blob/main/LICENSE).
