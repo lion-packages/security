@@ -28,11 +28,11 @@ class RSA {
 		}
 	}
 
-	public static function createKeys(string $rsa_path, string $rsa_private_key_bits, string $rsa_default_md, ?string $url_path = null): void {
+	public static function createKeys(?string $url_path = null): void {
 		$options = [
-			'config' => $rsa_path,
-			'private_key_bits' => (int) $rsa_private_key_bits,
-			'default_md' => $rsa_default_md
+			'config' => $_ENV['RSA_PATH'],
+			'private_key_bits' => (int) $_ENV['RSA_PRIVATE_KEY_BITS'],
+			'default_md' => $_ENV['RSA_DEFAULT_MD']
 		];
 
 		$generate = openssl_pkey_new($options);
