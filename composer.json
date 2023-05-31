@@ -8,11 +8,6 @@
             "LionSecurity\\": "src/LionSecurity/"
         }
     },
-    "authors": [
-        {
-            "name": "Sergio León"
-        }
-    ],
     "require": {
         "php": ">=8.1",
         "vlucas/valitron": "^1.4",
