@@ -1,13 +1,26 @@
-# Lion-Security
+<p align="center">
+  <a href="https://lion-client.vercel.app/" target="_blank">
+    <img
+         src="https://user-images.githubusercontent.com/56183278/230516080-096130be-e474-4f3a-a78a-44d3973ff715.png"
+         width="300"
+         alt="Lion-Framework Logo"
+    >
+  </a>
+</p>
 
-[![Latest Stable Version](http://poser.pugx.org/lion/security/v)](https://packagist.org/packages/lion/security) [![Total Downloads](http://poser.pugx.org/lion/security/downloads)](https://packagist.org/packages/lion/security) [![License](http://poser.pugx.org/lion/security/license)](https://packagist.org/packages/lion/security) [![PHP Version Require](http://poser.pugx.org/lion/security/require/php)](https://packagist.org/packages/lion/security)
+<p align="center">
+  <img src="http://poser.pugx.org/lion/security/v" alt="Latest Stable Version">
+  <img src="http://poser.pugx.org/lion/security/downloads" alt="Total Downloads">
+  <img src="http://poser.pugx.org/lion/security/license" alt="License">
+  <img src="http://poser.pugx.org/lion/security/require/php" alt="PHP Version Require">
+</p>
 
 ## Install
 
 ```shell
-composer require lion/security
+composer create-project lion/security
 ```
 
 ## License
 
-The Lion-Security library is open source software licensed under the [MIT License](https://github.com/Sleon4/Lion-Security/blob/main/LICENSE).
+The Lion-Security is open-sourced software licensed under the [MIT License](https://github.com/Sleon4/Lion-Security/blob/main/LICENSE).
