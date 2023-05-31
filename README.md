@@ -18,7 +18,7 @@
 ## Install
 
 ```shell
-composer create-project lion/security
+composer require lion/security
 ```
 
 ## License
