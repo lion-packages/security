@@ -15,7 +15,7 @@ use \UnexpectedValueException;
 
 class JWT {
 
-	private static function execute(Closure $execute_function): string|object {
+	private static function execute(Closure $execute_function): object {
 		try {
 			return $execute_function();
 		} catch (InvalidArgumentException $e) {
@@ -33,21 +33,27 @@ class JWT {
 		}
 	}
 
-	public static function encode(array $data, int $time = 0): string|object {
+	public static function encode(array $data, int $time = 0): object {
 		RSA::init();
 
 		return self::execute(function() use ($data, $time) {
 			$now = strtotime("now");
 
-			return FBJWT::encode([
-				'iss' => $_ENV['SERVER_URL'],
-				'aud' => $_ENV['SERVER_URL_AUD'],
-				"jti" => base64_encode(random_bytes(16)),
-				"iat" => $now,
-				"nbf" => $now,
-				'exp' => $now + ($time === 0 ? ((int) $_ENV['JWT_EXP']) : $time),
-				'data' => $data
-			], RSA::getPrivateKey(), $_ENV['JWT_DEFAULT_MD']);
+			return (object) [
+				'status' => "success",
+				'message' => "JWT encodes correctly.",
+				'data' => (object) [
+					'jwt' => FBJWT::encode([
+						'iss' => $_ENV['SERVER_URL'],
+						'aud' => $_ENV['SERVER_URL_AUD'],
+						"jti" => base64_encode(random_bytes(16)),
+						"iat" => $now,
+						"nbf" => $now,
+						'exp' => $now + ($time === 0 ? ((int) $_ENV['JWT_EXP']) : $time),
+						'data' => $data
+					], RSA::getPrivateKey(), $_ENV['JWT_DEFAULT_MD'])
+				]
+			];
 		});
 	}
 
@@ -62,7 +68,7 @@ class JWT {
 			return (object) [
 				'status' => "success",
 				'message' => "JWT decoded successfully.",
-				'data' => [
+				'data' => (object) [
 					'jwt' => FBJWT::decode(
 						$jwt,
 						new Key(RSA::getPublicKey(), $_ENV['JWT_DEFAULT_MD'])
