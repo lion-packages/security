@@ -2,7 +2,7 @@
 
 namespace LionSecurity;
 
-use Closure;
+use \Closure;
 use Valitron\Validator;
 
 class Validation {
