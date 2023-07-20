@@ -23,4 +23,4 @@ composer require lion/security
 
 ## License
 
-The Lion-Security is open-sourced software licensed under the [MIT License](https://github.com/Sleon4/Lion-Security/blob/main/LICENSE).
+The <strong>security</strong> is open-sourced software licensed under the [MIT License](https://github.com/lion-packages/security/blob/main/LICENSE).
