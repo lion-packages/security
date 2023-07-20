@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+    app:
+        container_name: lion-security-app
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file:
+            - .env
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - lion
+networks:
+    lion:
+        driver: bridge
