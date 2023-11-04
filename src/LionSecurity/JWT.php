@@ -13,9 +13,10 @@ use \InvalidArgumentException;
 use LionSecurity\RSA;
 use \UnexpectedValueException;
 
-class JWT {
-
-	private static function execute(Closure $execute_function): object {
+class JWT
+{
+	private static function execute(Closure $execute_function): object
+    {
 		try {
 			return $execute_function();
 		} catch (InvalidArgumentException $e) {
@@ -33,7 +34,8 @@ class JWT {
 		}
 	}
 
-	public static function encode(array $data, int $time = 0): object {
+	public static function encode(array $data, int $time = 0): object
+    {
 		RSA::init();
 
 		return self::execute(function() use ($data, $time) {
@@ -57,7 +59,8 @@ class JWT {
 		});
 	}
 
-	public static function decode(?string $jwt): object {
+	public static function decode(?string $jwt): object
+    {
 		RSA::init();
 
 		if ($jwt === 'null' || $jwt === null) {
@@ -78,7 +81,8 @@ class JWT {
 		});
 	}
 
-	public static function get(): string {
+	public static function get(): string
+    {
 		$headers = apache_request_headers();
 
 		if (isset($headers['Authorization'])) {
@@ -89,5 +93,4 @@ class JWT {
 
 		return false;
 	}
-
 }

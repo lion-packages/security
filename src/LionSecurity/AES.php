@@ -2,9 +2,10 @@
 
 namespace LionSecurity;
 
-class AES {
-
-	public static function encode(string $key, string $iv, array $files): object {
+class AES
+{
+	public static function encode(string $key, string $iv, array $files): object
+    {
 		$data_list = [];
 
 		foreach ($files as $key => $file) {
@@ -16,7 +17,8 @@ class AES {
 		return (object) $data_list;
 	}
 
-	public static function decode(string $key, string $iv, array $files): object {
+	public static function decode(string $key, string $iv, array $files): object
+    {
 		$data_list = [];
 
 		foreach ($files as $key => $file) {
@@ -27,5 +29,4 @@ class AES {
 
 		return (object) $data_list;
 	}
-
 }

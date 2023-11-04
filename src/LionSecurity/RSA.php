@@ -2,16 +2,16 @@
 
 namespace LionSecurity;
 
-use \OpenSSLAsymmetricKey;
+use OpenSSLAsymmetricKey;
 
-class RSA {
-
+class RSA
+{
 	private static ?OpenSSLAsymmetricKey $public_key = null;
 	private static ?OpenSSLAsymmetricKey $private_key = null;
-
 	private static string $url_path = "storage/keys/";
 
-	public static function init(): void {
+	public static function init(): void
+    {
 		if (self::$public_key === null) {
 			self::$public_key = openssl_pkey_get_public(
 				file_get_contents(self::$url_path . 'public.key')
@@ -25,7 +25,8 @@ class RSA {
 		}
 	}
 
-	public static function createKeys(?string $url_path = null): void {
+	public static function createKeys(?string $url_path = null): void
+    {
 		$rsa_config = [
 			'config' => $_ENV['RSA_PATH'],
 			'private_key_bits' => $_ENV['RSA_PRIVATE_KEY_BITS'],
@@ -42,7 +43,8 @@ class RSA {
 		file_put_contents($path_public_key, $public['key']);
 	}
 
-	public static function encode(array $rows): object {
+	public static function encode(array $rows): object
+    {
 		self::init();
 		$data_list = [];
 
@@ -54,7 +56,8 @@ class RSA {
 		return (object) $data_list;
 	}
 
-	public static function decode(array $rows): object {
+	public static function decode(array $rows): object
+    {
 		self::init();
 		$data_list = [];
 
@@ -66,20 +69,23 @@ class RSA {
 		return (object) $data_list;
 	}
 
-	public static function getPath(): string {
+	public static function getPath(): string
+    {
 		return self::$url_path;
 	}
 
-	public static function setPath(string $url_path): void {
+	public static function setPath(string $url_path): void
+    {
 		self::$url_path = $url_path;
 	}
 
-	public static function getPublicKey(): ?OpenSSLAsymmetricKey {
+	public static function getPublicKey(): ?OpenSSLAsymmetricKey
+    {
 		return self::$public_key;
 	}
 
-	public static function getPrivateKey(): ?OpenSSLAsymmetricKey {
+	public static function getPrivateKey(): ?OpenSSLAsymmetricKey
+    {
 		return self::$private_key;
 	}
-
 }
