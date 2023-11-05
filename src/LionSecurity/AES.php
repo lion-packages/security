@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LionSecurity;
 
 use LionSecurity\Exceptions\InvalidConfigException;
-use LionSecurity\Exceptions\InvalidKeyException;
 
 class AES
 {
@@ -173,14 +174,6 @@ class AES
      * */
     public function key(string $key): AES
     {
-        $lenght = $this->cipherKeyLength($this->method);
-
-        if (strlen($key) !== $lenght) {
-            throw new InvalidKeyException(
-                "Key passed is not {$lenght} bytes long"
-            );
-        }
-
         $this->key = $key;
 
         return $this;
@@ -191,14 +184,6 @@ class AES
      * */
     public function iv(string $iv): AES
     {
-        $lenght = $this->cipherKeyLength($this->method);
-
-        if (strlen($iv) !== $lenght) {
-            throw new InvalidKeyException(
-                "Iv passed is not {$lenght} bytes long"
-            );
-        }
-
         $this->iv = $iv;
 
         return $this;
