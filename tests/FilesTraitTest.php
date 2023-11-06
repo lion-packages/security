@@ -9,20 +9,20 @@ class FilesTraitTest extends TestCase
 {
     use FilesTrait;
 
+    const URL_PATH_EXAMPLE = './storage/example/';
+
     public function testRmdirRecursively(): void
     {
-        $directory = './storage/example/';
-        $this->createDirectory($directory);
-        $this->rmdirRecursively($directory);
+        $this->createDirectory(self::URL_PATH_EXAMPLE);
+        $this->rmdirRecursively(self::URL_PATH_EXAMPLE);
 
-        $this->assertFalse(is_dir($directory));
+        $this->assertFalse(is_dir(self::URL_PATH_EXAMPLE));
     }
 
     public function testCreateDirectory(): void
     {
-        $directory = './storage/example/';
-        $this->createDirectory($directory);
+        $this->createDirectory(self::URL_PATH_EXAMPLE);
 
-        $this->assertTrue(is_dir($directory));
+        $this->assertTrue(is_dir(self::URL_PATH_EXAMPLE));
     }
 }

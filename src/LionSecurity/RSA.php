@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace LionSecurity;
 
 use OpenSSLAsymmetricKey;
-use PharIo\Manifest\InvalidUrlException;
 
 class RSA
 {
 	private ?OpenSSLAsymmetricKey $publicKey = null;
 	private ?OpenSSLAsymmetricKey $privateKey = null;
 
-    private array $values = [];
+    private array|object $values = [];
 	private string $urlPath = './storage/keys/';
     private string $rsaConfig = '/etc/ssl/openssl.cnf';
     private int $rsaPrivateKeyBits = 2048;
@@ -80,6 +79,7 @@ class RSA
 
         $this->generateKeys($urlPath, $public['key']);
         $this->generateKeys($urlPath, $private, false);
+        $this->init();
 
         return $this;
 	}
@@ -89,7 +89,7 @@ class RSA
      * */
 	public function encode(string $key, string $value): RSA
     {
-		self::init();
+		$this->init();
         openssl_public_encrypt($value, $data, $this->publicKey);
         $this->values[$key] = $data;
 
@@ -101,7 +101,7 @@ class RSA
      * */
 	public function decode(array $rows): RSA
     {
-		self::init();
+		$this->init();
 
 		foreach ($rows as $key => $row) {
 			openssl_private_decrypt($row, $data, $this->privateKey);
@@ -114,7 +114,7 @@ class RSA
     /**
      * Returns the current path of the keys
      * */
-	public function getPath(): string
+	public function getUrlPath(): string
     {
 		return $this->urlPath;
 	}
@@ -122,9 +122,11 @@ class RSA
     /**
      * Modify the current key path
      * */
-	public function setPath(string $urlPath): void
+	public function setUrlPath(string $urlPath): RSA
     {
 		$this->urlPath = $urlPath;
+
+        return $this;
 	}
 
     /**
@@ -178,11 +180,11 @@ class RSA
      * */
     public function init(): RSA
     {
-        if ($this->publicKey === null) {
+        if (null === $this->publicKey) {
             $this->publicKey = openssl_pkey_get_public(file_get_contents($this->urlPath . 'public.key'));
         }
 
-        if ($this->privateKey === null) {
+        if (null === $this->privateKey) {
             $this->privateKey = openssl_pkey_get_private(file_get_contents($this->urlPath . 'private.key'));
         }
 

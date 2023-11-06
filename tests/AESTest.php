@@ -14,6 +14,7 @@ class AESTest extends TestCase
 {
     const KEY = '0123456789sleon4';
     const IV = 'sleon40123456789';
+    const CONFIG = ['key' => self::KEY, 'iv' => self::IV, 'method' => AES::AES_256_CBC];
 
     private AES $aes;
     private ReflectionClass $reflectionClass;
@@ -42,10 +43,7 @@ class AESTest extends TestCase
 
     public function testConfig(): void
     {
-        $this->assertInstanceOf(
-            AES::class,
-            $this->aes->config(['key' => self::KEY, 'iv' => self::IV, 'method' => AES::AES_256_CBC])
-        );
+        $this->assertInstanceOf(AES::class, $this->aes->config(self::CONFIG));
 
         $keyProperty = $this->reflectionClass->getProperty('key');
         $keyProperty->setAccessible(true);
@@ -113,7 +111,7 @@ class AESTest extends TestCase
 
     public function testEncode(): void
     {
-        $this->aes->config(['key' => self::KEY, 'iv' => self::IV, 'method' => AES::AES_256_CBC]);
+        $this->aes->config(self::CONFIG);
         $valuesProperty = $this->reflectionClass->getProperty('values');
         $valuesProperty->setAccessible(true);
 
@@ -127,22 +125,13 @@ class AESTest extends TestCase
 
     public function testDecode()
     {
-        $config = ['key' => self::KEY, 'iv' => self::IV, 'method' => AES::AES_256_CBC];
         $key1 = 'key1';
         $key2 = 'key2';
         $value1 = 'encoded_value_1';
         $value2 = 'encoded_value_2';
 
-        $encode = $this->aes
-            ->config($config)
-            ->encode($key1, $value1)
-            ->encode($key2, $value2)
-            ->get();
-
-        $decode = $this->aes
-            ->config($config)
-            ->decode($encode)
-            ->get();
+        $encode = $this->aes->config(self::CONFIG)->encode($key1, $value1)->encode($key2, $value2)->get();
+        $decode = $this->aes->config(self::CONFIG)->decode($encode)->get();
 
         $this->assertArrayHasKey($key1, $decode);
         $this->assertArrayHasKey($key2, $decode);
@@ -152,11 +141,7 @@ class AESTest extends TestCase
 
     public function testToObject(): void
     {
-        $encode = $this->aes
-            ->config(['key' => self::KEY, 'iv' => self::IV, 'method' => AES::AES_256_CBC])
-            ->encode('user_name', 'Sleon')
-            ->toObject()
-            ->get();
+        $encode = $this->aes->config(self::CONFIG)->encode('user_name', 'Sleon')->toObject()->get();
 
         $this->assertInstanceOf(stdClass::class, $encode);
         $this->assertObjectHasProperty('user_name', $encode);
@@ -164,10 +149,7 @@ class AESTest extends TestCase
 
     public function testGet(): void
     {
-        $encode = $this->aes
-            ->config(['key' => self::KEY, 'iv' => self::IV, 'method' => AES::AES_256_CBC])
-            ->encode('user_name', 'Sleon')
-            ->get();
+        $encode = $this->aes->config(self::CONFIG)->encode('user_name', 'Sleon')->get();
 
         $this->assertIsArray($encode);
         $this->assertArrayHasKey('user_name', $encode);
