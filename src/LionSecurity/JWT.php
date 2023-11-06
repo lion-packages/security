@@ -25,8 +25,7 @@ class JWT
     private RSA $rsa;
     private AES $aes;
 
-    private array|object $values = [];
-    private bool $selectedMethod = self::RSA;
+    private array|object|string $values = [];
     private array $configValues = [];
     private string $jwtServerUrl = 'http://127.0.0.1:8000';
     private string $jwtServerUrlAud = 'http://127.0.0.1:5173';
@@ -45,7 +44,6 @@ class JWT
     private function clean(): void
     {
         $this->values = [];
-        $this->selectedMethod = 'RSA';
         $this->configValues = [];
         $this->jwtServerUrl = 'http://127.0.0.1:8000';
         $this->jwtServerUrlAud = 'http://127.0.0.1:5173';
@@ -56,7 +54,7 @@ class JWT
     /**
      * Define settings for AES encryption
      * */
-    public function config(string $method, array $config): JWT
+    public function config(array $config): JWT
     {
         if (!empty($config['jwtServerUrl'])) {
             $this->jwtServerUrl = $config['jwtServerUrl'];
@@ -74,7 +72,6 @@ class JWT
             $this->jwtDefaultMD = $config['jwtDefaultMD'];
         }
 
-        $this->selectedMethod = in_array($method, self::METHODS, true) ? $method : self::RSA;
         $this->configValues = $config;
 
         return $this;
@@ -105,10 +102,10 @@ class JWT
     /**
      * Encrypt data with defined settings
      * */
-    public function encode(array $data, int $time = 0, int $bytes = 16): void
+    public function encode(array $data, int $time = 0, int $bytes = 16): JWT
     {
         $this->execute(function() use ($data, $time, $bytes) {
-            if (empty($config['privateKey'])) {
+            if (empty($this->configValues['privateKey'])) {
                 throw new InvalidConfigException('The privateKey has not been defined');
             }
 
@@ -117,33 +114,37 @@ class JWT
             $config = [
                 'iss' => $this->jwtServerUrl,
                 'aud' => $this->jwtServerUrlAud,
-                "jti" => base64_encode(random_bytes($bytes)),
-                "iat" => $now,
-                "nbf" => $now,
+                'jti' => base64_encode(random_bytes($bytes)),
+                'iat' => $now,
+                'nbf' => $now,
                 'exp' => $now + (0 === $time ? ((int) $this->jwtExp) : $time),
                 'data' => $data
             ];
 
             return FBJWT::encode($config, $this->configValues['privateKey'], $this->jwtDefaultMD);
         });
+
+        return $this;
     }
 
     /**
      * Decodes the data with the defined settings
      * */
-    public function decode(?string $jwt = ''): void
+    public function decode(?string $jwt = ''): JWT
     {
         $this->execute(function() use ($jwt) {
-            if (empty($config['publicKey'])) {
+            if (empty($this->configValues['publicKey'])) {
                 throw new InvalidConfigException('The publicKey has not been defined');
             }
 
             if (in_array($jwt, ['null', null, ''], true)) {
-                return (object) ['status' => "error", 'message' => "The JWT does not exist"];
+                return (object) ['status' => 'error', 'message' => 'The JWT does not exist'];
             }
 
             return FBJWT::decode($jwt, new Key($this->configValues['publicKey'], $this->jwtDefaultMD));
         });
+
+        return $this;
     }
 
     /**
@@ -191,10 +192,8 @@ class JWT
      * */
     public function getJWT(): string|bool
     {
-        $headers = apache_request_headers();
-
-        if (isset($headers['Authorization'])) {
-            if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+        if (isset($_SERVER['Authorization'])) {
+            if (preg_match('/Bearer\s(\S+)/', $_SERVER['Authorization'], $matches)) {
                 return $matches[1];
             }
         }
@@ -203,21 +202,9 @@ class JWT
     }
 
     /**
-     * Converts the list with data to an object
-     * */
-    public function toObject(): JWT
-    {
-        if (gettype($this->values) === 'array') {
-            $this->values = (object) $this->values;
-        }
-
-        return $this;
-    }
-
-    /**
      * Returns the current array/object with the encrypted/decrypted data
      * */
-    public function get(): array|object
+    public function get(): array|object|string
     {
         $values = $this->values;
         $this->clean();
