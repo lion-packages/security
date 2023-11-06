@@ -18,6 +18,12 @@ class AESTest extends TestCase
     private AES $aes;
     private ReflectionClass $reflectionClass;
 
+    protected function setUp(): void
+    {
+        $this->aes = new AES();
+        $this->reflectionClass = new ReflectionClass($this->aes);
+    }
+
     public function testCipherKeyLength(): void
     {
         $lenght = $this->aes->cipherKeyLength(AES::AES_256_CBC);
@@ -165,11 +171,5 @@ class AESTest extends TestCase
 
         $this->assertIsArray($encode);
         $this->assertArrayHasKey('user_name', $encode);
-    }
-
-    public function setUp(): void
-    {
-        $this->aes = new AES();
-        $this->reflectionClass = new ReflectionClass($this->aes);
     }
 }

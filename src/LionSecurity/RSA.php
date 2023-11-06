@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace LionSecurity;
 
-use LionSecurity\Exceptions\InvalidConfigException;
 use OpenSSLAsymmetricKey;
+use PharIo\Manifest\InvalidUrlException;
 
 class RSA
 {
@@ -59,48 +59,23 @@ class RSA
      * */
     private function generateKeys(string $urlPath, string $keyValue, bool $isPublic = true): void
     {
-        $path = '';
-
-        if (mkdir(('' === $urlPath ? $this->urlPath : $urlPath), 0777, true)) {
-            if ('' === $urlPath) {
-                $path = !$isPublic ? "{$this->urlPath}private.key" : "{$this->urlPath}public.key";
-            } else {
-                $path = !$isPublic ? "{$urlPath}private.key" : "{$urlPath}public.key";
-            }
-
-            file_put_contents($path, $keyValue);
-        }
+        $path = '' === $urlPath ? $this->urlPath : $urlPath;
+        file_put_contents((!$isPublic ? "{$path}private.key" : "{$path}public.key"), $keyValue);
     }
-
-    /**
-     * Initialize keys stored in a path
-     * */
-	public function init(): RSA
-    {
-		if ($this->publicKey === null) {
-			$this->publicKey = openssl_pkey_get_public(file_get_contents($this->urlPath . 'public.key'));
-		}
-
-		if ($this->privateKey === null) {
-			$this->privateKey = openssl_pkey_get_private(file_get_contents($this->urlPath . 'private.key'));
-		}
-
-        return $this;
-	}
 
     /**
      * Create public and private key in a route
      * */
 	public function create(string $urlPath = ''): RSA
     {
-		$rsa_config = [
+		$rsaConfig = [
 			'config' => $this->rsaConfig,
 			'private_key_bits' => $this->rsaPrivateKeyBits,
 			'default_md' => $this->rsaDefaultMd
 		];
 
-		$generate = openssl_pkey_new($rsa_config);
-		openssl_pkey_export($generate, $private, null, $rsa_config);
+		$generate = openssl_pkey_new($rsaConfig);
+		openssl_pkey_export($generate, $private, null, $rsaConfig);
 		$public = openssl_pkey_get_details($generate);
 
         $this->generateKeys($urlPath, $public['key']);
@@ -194,6 +169,22 @@ class RSA
     public function rsaDefaultMd(string $rsaDefaultMd): RSA
     {
         $this->rsaDefaultMd = $rsaDefaultMd;
+
+        return $this;
+    }
+
+    /**
+     * Initialize keys stored in a path
+     * */
+    public function init(): RSA
+    {
+        if ($this->publicKey === null) {
+            $this->publicKey = openssl_pkey_get_public(file_get_contents($this->urlPath . 'public.key'));
+        }
+
+        if ($this->privateKey === null) {
+            $this->privateKey = openssl_pkey_get_private(file_get_contents($this->urlPath . 'private.key'));
+        }
 
         return $this;
     }
