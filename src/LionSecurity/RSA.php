@@ -1,85 +1,216 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LionSecurity;
 
-use \OpenSSLAsymmetricKey;
+use OpenSSLAsymmetricKey;
 
-class RSA {
+class RSA
+{
+	private ?OpenSSLAsymmetricKey $publicKey = null;
+	private ?OpenSSLAsymmetricKey $privateKey = null;
 
-	private static ?OpenSSLAsymmetricKey $public_key = null;
-	private static ?OpenSSLAsymmetricKey $private_key = null;
+    private array|object $values = [];
+	private string $urlPath = './storage/keys/';
+    private string $rsaConfig = '/etc/ssl/openssl.cnf';
+    private int $rsaPrivateKeyBits = 2048;
+    private string $rsaDefaultMd = 'sha256';
 
-	private static string $url_path = "storage/keys/";
+    /**
+     * Clear variables so they have their original value
+     * */
+    private function clean(): void
+    {
+        $this->values = [];
+        $this->urlPath = './storage/keys/';
+        $this->rsaConfig = '/etc/ssl/openssl.cnf';
+        $this->rsaPrivateKeyBits = 2048;
+        $this->rsaDefaultMd = 'sha256';
+    }
 
-	public static function init(): void {
-		if (self::$public_key === null) {
-			self::$public_key = openssl_pkey_get_public(
-				file_get_contents(self::$url_path . 'public.key')
-			);
-		}
+    /**
+     * Define settings for AES encryption
+     * */
+    public function config(array $config): RSA
+    {
+        if (!empty($config['urlPath']) && '' !== $this->urlPath) {
+            $this->urlPath = $config['urlPath'];
+        }
 
-		if (self::$private_key === null) {
-			self::$private_key = openssl_pkey_get_private(
-				file_get_contents(self::$url_path . 'private.key')
-			);
-		}
-	}
+        if (!empty($config['rsaConfig']) && '' !== $this->rsaConfig) {
+            $this->rsaConfig = $config['rsaConfig'];
+        }
 
-	public static function createKeys(?string $url_path = null): void {
-		$rsa_config = [
-			'config' => $_ENV['RSA_PATH'],
-			'private_key_bits' => $_ENV['RSA_PRIVATE_KEY_BITS'],
-			'default_md' => $_ENV['RSA_DEFAULT_MD']
+        if (!empty($config['rsaPrivateKeyBits']) && '' !== $this->rsaPrivateKeyBits) {
+            $this->rsaPrivateKeyBits = $config['rsaPrivateKeyBits'];
+        }
+
+        if (!empty($config['rsaDefaultMd']) && '' !== $this->rsaDefaultMd) {
+            $this->rsaDefaultMd = $config['rsaDefaultMd'];
+        }
+
+        return $this;
+    }
+
+    /**
+     * Generate keys on a defined path
+     * */
+    private function generateKeys(string $urlPath, string $keyValue, bool $isPublic = true): void
+    {
+        $path = '' === $urlPath ? $this->urlPath : $urlPath;
+        file_put_contents((!$isPublic ? "{$path}private.key" : "{$path}public.key"), $keyValue);
+    }
+
+    /**
+     * Create public and private key in a route
+     * */
+	public function create(string $urlPath = ''): RSA
+    {
+		$rsaConfig = [
+			'config' => $this->rsaConfig,
+			'private_key_bits' => $this->rsaPrivateKeyBits,
+			'default_md' => $this->rsaDefaultMd
 		];
 
-		$generate = openssl_pkey_new($rsa_config);
-		openssl_pkey_export($generate, $private, null, $rsa_config);
+		$generate = openssl_pkey_new($rsaConfig);
+		openssl_pkey_export($generate, $private, null, $rsaConfig);
 		$public = openssl_pkey_get_details($generate);
 
-		$path_private_key = $url_path === null ? self::$url_path . 'private.key' : "{$url_path}private.key";
-		$path_public_key = $url_path === null ? self::$url_path . 'public.key' : "{$url_path}public.key";
-		file_put_contents($path_private_key, $private);
-		file_put_contents($path_public_key, $public['key']);
+        $this->generateKeys($urlPath, $public['key']);
+        $this->generateKeys($urlPath, $private, false);
+        $this->init();
+
+        return $this;
 	}
 
-	public static function encode(array $rows): object {
-		self::init();
-		$data_list = [];
+    /**
+     * Encrypt data with defined settings
+     * */
+	public function encode(string $key, string $value): RSA
+    {
+		$this->init();
+        openssl_public_encrypt($value, $data, $this->publicKey);
+        $this->values[$key] = $data;
+
+        return $this;
+	}
+
+    /**
+     * Decodes the data with the defined settings
+     * */
+	public function decode(array $rows): RSA
+    {
+		$this->init();
 
 		foreach ($rows as $key => $row) {
-			openssl_public_encrypt($row, $data, self::$public_key);
-			$data_list[$key] = $data;
+			openssl_private_decrypt($row, $data, $this->privateKey);
+			$this->values[$key] = $data;
 		}
 
-		return (object) $data_list;
+		return $this;
 	}
 
-	public static function decode(array $rows): object {
-		self::init();
-		$data_list = [];
-
-		foreach ($rows as $key => $row) {
-			openssl_private_decrypt($row, $data, self::$private_key);
-			$data_list[$key] = $data;
-		}
-
-		return (object) $data_list;
+    /**
+     * Returns the current path of the keys
+     * */
+	public function getUrlPath(): string
+    {
+		return $this->urlPath;
 	}
 
-	public static function getPath(): string {
-		return self::$url_path;
+    /**
+     * Modify the current key path
+     * */
+	public function setUrlPath(string $urlPath): RSA
+    {
+		$this->urlPath = $urlPath;
+
+        return $this;
 	}
 
-	public static function setPath(string $url_path): void {
-		self::$url_path = $url_path;
+    /**
+     * Returns the current public key
+     * */
+	public function getPublicKey(): ?OpenSSLAsymmetricKey
+    {
+		return $this->publicKey;
 	}
 
-	public static function getPublicKey(): ?OpenSSLAsymmetricKey {
-		return self::$public_key;
+    /**
+     * Returns the current private key
+     * */
+	public function getPrivateKey(): ?OpenSSLAsymmetricKey
+    {
+		return $this->privateKey;
 	}
 
-	public static function getPrivateKey(): ?OpenSSLAsymmetricKey {
-		return self::$private_key;
-	}
+    /**
+     * Modify the path for the configuration file used by OpenSSL
+     * */
+    public function rsaConfig(string $rsaConfig): RSA
+    {
+        $this->rsaConfig = $rsaConfig;
 
+        return $this;
+    }
+
+    /**
+     * Modify by specifying the length of the RSA key
+     * */
+    public function rsaPrivateKeyBits(int $rsaPrivateKeyBits): RSA
+    {
+        $this->rsaPrivateKeyBits = $rsaPrivateKeyBits;
+
+        return $this;
+    }
+
+    /**
+     * Modify the cryptographic protocol configuration: sha256
+     * */
+    public function rsaDefaultMd(string $rsaDefaultMd): RSA
+    {
+        $this->rsaDefaultMd = $rsaDefaultMd;
+
+        return $this;
+    }
+
+    /**
+     * Initialize keys stored in a path
+     * */
+    public function init(): RSA
+    {
+        if (null === $this->publicKey) {
+            $this->publicKey = openssl_pkey_get_public(file_get_contents($this->urlPath . 'public.key'));
+        }
+
+        if (null === $this->privateKey) {
+            $this->privateKey = openssl_pkey_get_private(file_get_contents($this->urlPath . 'private.key'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Converts the list with data to an object
+     * */
+    public function toObject(): RSA
+    {
+        if (gettype($this->values) === 'array') {
+            $this->values = (object) $this->values;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns the current array/object with the encrypted/decrypted data
+     * */
+    public function get(): array|object
+    {
+        $values = $this->values;
+        $this->clean();
+
+        return $values;
+    }
 }
