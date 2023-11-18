@@ -9,9 +9,12 @@ use LionSecurity\Exceptions\InvalidConfigException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use stdClass;
+use Tests\Support\Providers\AESEncryptionMethodProvider;
 
 class AESTest extends TestCase
 {
+    use AESEncryptionMethodProvider;
+
     const KEY = '0123456789sleon4';
     const IV = 'sleon40123456789';
     const CONFIG = ['key' => self::KEY, 'iv' => self::IV, 'method' => AES::AES_256_CBC];
@@ -54,9 +57,9 @@ class AESTest extends TestCase
         $methodProperty = $this->reflectionClass->getProperty('method');
         $methodProperty->setAccessible(true);
 
-        $this->assertEquals(self::KEY, $keyProperty->getValue($this->aes));
-        $this->assertEquals(self::IV, $ivProperty->getValue($this->aes));
-        $this->assertEquals(AES::AES_256_CBC, $methodProperty->getValue($this->aes));
+        $this->assertSame(self::KEY, $keyProperty->getValue($this->aes));
+        $this->assertSame(self::IV, $ivProperty->getValue($this->aes));
+        $this->assertSame(AES::AES_256_CBC, $methodProperty->getValue($this->aes));
     }
 
     public function testConfigWithMissingKey(): void
@@ -79,7 +82,20 @@ class AESTest extends TestCase
         $methodProperty = $this->reflectionClass->getProperty('method');
         $methodProperty->setAccessible(true);
 
-        $this->assertEquals(AES::AES_256_CBC, $methodProperty->getValue($this->aes));
+        $this->assertSame(AES::AES_256_CBC, $methodProperty->getValue($this->aes));
+    }
+
+    /**
+     * @dataProvider AESEncryptionMethodProvider
+     */
+    public function testCreate(string $method, int $bits): void
+    {
+        $values = $this->aes->create($method)->get();
+
+        $this->assertArrayHasKey('key', $values);
+        $this->assertArrayHasKey('iv', $values);
+        $this->assertArrayHasKey('bits', $values);
+        $this->assertSame($bits, $values['bits']);
     }
 
     public function testMethod(): void
@@ -88,7 +104,7 @@ class AESTest extends TestCase
         $methodProperty->setAccessible(true);
 
         $this->assertInstanceOf(AES::class, $this->aes->method(AES::AES_256_CBC));
-        $this->assertEquals(AES::AES_256_CBC, $methodProperty->getValue($this->aes));
+        $this->assertSame(AES::AES_256_CBC, $methodProperty->getValue($this->aes));
     }
 
     public function testKey(): void
@@ -97,7 +113,7 @@ class AESTest extends TestCase
         $keyProperty->setAccessible(true);
 
         $this->assertInstanceOf(AES::class, $this->aes->key(self::KEY));
-        $this->assertEquals(self::KEY, $keyProperty->getValue($this->aes));
+        $this->assertSame(self::KEY, $keyProperty->getValue($this->aes));
     }
 
     public function testIv(): void
@@ -106,7 +122,7 @@ class AESTest extends TestCase
         $keyProperty->setAccessible(true);
 
         $this->assertInstanceOf(AES::class, $this->aes->iv(self::IV));
-        $this->assertEquals(self::IV, $keyProperty->getValue($this->aes));
+        $this->assertSame(self::IV, $keyProperty->getValue($this->aes));
     }
 
     public function testEncode(): void
@@ -135,8 +151,8 @@ class AESTest extends TestCase
 
         $this->assertArrayHasKey($key1, $decode);
         $this->assertArrayHasKey($key2, $decode);
-        $this->assertEquals($value1, $decode[$key1]);
-        $this->assertEquals($value2, $decode[$key2]);
+        $this->assertSame($value1, $decode[$key1]);
+        $this->assertSame($value2, $decode[$key2]);
     }
 
     public function testToObject(): void

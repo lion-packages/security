@@ -84,8 +84,9 @@ class AES
      * */
     public function cipherKeyLength(string $aesMethod): int|false
     {
-        $length = match(trim(strtolower($aesMethod))) {
+        $length = match (trim(strtolower($aesMethod))) {
             'aes-128-cbc' => 16,
+            'aes-128-cbc-cts' => 16,
             'aes-128-cbc-hmac-sha1' => 16,
             'aes-128-cbc-hmac-sha256' => 16,
             'aes-128-ccm' => 16,
@@ -97,10 +98,14 @@ class AES
             'aes-128-gcm' => 16,
             'aes-128-ocb' => 16,
             'aes-128-ofb' => 16,
+            'aes-128-siv' => 16,
             'aes-128-wrap' => 16,
+            'aes-128-wrap-inv' => 16,
             'aes-128-wrap-pad' => 16,
-            'aes-128-xts' => 32,
+            'aes-128-wrap-pad-inv' => 16,
+            'aes-128-xts' => 16,
             'aes-192-cbc' => 24,
+            'aes-192-cbc-cts' => 24,
             'aes-192-ccm' => 24,
             'aes-192-cfb' => 24,
             'aes-192-cfb1' => 24,
@@ -110,9 +115,13 @@ class AES
             'aes-192-gcm' => 24,
             'aes-192-ocb' => 24,
             'aes-192-ofb' => 24,
+            'aes-192-siv' => 24,
             'aes-192-wrap' => 24,
+            'aes-192-wrap-inv' => 24,
             'aes-192-wrap-pad' => 24,
+            'aes-192-wrap-pad-inv' => 24,
             'aes-256-cbc' => 32,
+            'aes-256-cbc-cts' => 32,
             'aes-256-cbc-hmac-sha1' => 32,
             'aes-256-cbc-hmac-sha256' => 32,
             'aes-256-ccm' => 32,
@@ -124,9 +133,12 @@ class AES
             'aes-256-gcm' => 32,
             'aes-256-ocb' => 32,
             'aes-256-ofb' => 32,
+            'aes-256-siv' => 32,
             'aes-256-wrap' => 32,
+            'aes-256-wrap-inv' => 32,
             'aes-256-wrap-pad' => 32,
-            'aes-256-xts' => 64,
+            'aes-256-wrap-pad-inv' => 32,
+            'aes-256-xts' => 32,
             default => false
         };
 
@@ -155,6 +167,22 @@ class AES
         } else {
             $this->method = $config['method'];
         }
+
+        return $this;
+    }
+
+    /**
+     *  Creates key and iv for aes encryption.
+     */
+    public function create(string $method): AES
+    {
+        $bits = $this->cipherKeyLength($method);
+
+        $this->values = [
+            'bits' => $bits,
+            'key' => bin2hex(random_bytes($bits / 2)),
+            'iv' => bin2hex(random_bytes($bits / 2))
+        ];
 
         return $this;
     }
