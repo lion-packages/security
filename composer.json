@@ -20,6 +20,7 @@
         "vlucas/valitron": "^1.4"
     },
     "require-dev": {
+        "lion/test": "^1.0",
         "phpunit/phpunit": "^10.4"
     }
 }

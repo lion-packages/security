@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests;
 
 use LionSecurity\Validation;
-use PHPUnit\Framework\TestCase;
+use LionTest\Test;
 
-class ValidationTest extends TestCase
+class ValidationTest extends Test
 {
     private Validation $validation;
 
