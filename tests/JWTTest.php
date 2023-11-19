@@ -8,15 +8,10 @@ use LionSecurity\AES;
 use LionSecurity\Exceptions\InvalidConfigException;
 use LionSecurity\JWT;
 use LionSecurity\RSA;
-use LionSecurity\Traits\FilesTrait;
-use LionSecurity\Traits\ReflectionClassTrait;
-use PHPUnit\Framework\TestCase;
+use LionTest\Test;
 
-class JWTTest extends TestCase
+class JWTTest extends Test
 {
-    use FilesTrait;
-    use ReflectionClassTrait;
-
     const JWT_SERVER_URL = 'http://127.0.0.1:8000';
     const JWT_SERVER_URL_AUD = 'http://127.0.0.1:5173';
     const JWT_EXP = 3600;
@@ -57,7 +52,7 @@ class JWTTest extends TestCase
         $this->aes = new AES();
         $this->jwt = new JWT();
 
-        $this->init($this->jwt);
+        $this->initReflection($this->jwt);
         $this->createDirectory(self::URL_PATH);
     }
 

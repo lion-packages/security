@@ -13,30 +13,16 @@ use Firebase\JWT\Key;
 use Firebase\JWT\JWT as FBJWT;
 use InvalidArgumentException;
 use LionSecurity\Exceptions\InvalidConfigException;
-use LionSecurity\RSA;
 use UnexpectedValueException;
 
 class JWT
 {
-    const RSA = 'RSA';
-    const AES = 'AES';
-    const METHODS = [self::RSA, self::AES];
-
-    private RSA $rsa;
-    private AES $aes;
-
     private array|object|string $values = [];
     private array $configValues = [];
     private string $jwtServerUrl = 'http://127.0.0.1:8000';
     private string $jwtServerUrlAud = 'http://127.0.0.1:5173';
     private int $jwtExp = 3600;
     private string $jwtDefaultMD = 'RS256';
-
-    public function __construct()
-    {
-        $this->rsa = new RSA();
-        $this->aes = new AES();
-    }
 
     /**
      * Clear variables so they have their original value

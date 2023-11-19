@@ -6,12 +6,12 @@ namespace Tests;
 
 use LionSecurity\AES;
 use LionSecurity\Exceptions\InvalidConfigException;
-use PHPUnit\Framework\TestCase;
+use LionTest\Test;
 use ReflectionClass;
 use stdClass;
 use Tests\Support\Providers\AESEncryptionMethodProvider;
 
-class AESTest extends TestCase
+class AESTest extends Test
 {
     use AESEncryptionMethodProvider;
 
