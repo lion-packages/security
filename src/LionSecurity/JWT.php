@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LionSecurity;
+namespace Lion\Security;
 
 use Closure;
 use DomainException;
@@ -12,7 +12,7 @@ use Firebase\JWT\ExpiredException;
 use Firebase\JWT\Key;
 use Firebase\JWT\JWT as FBJWT;
 use InvalidArgumentException;
-use LionSecurity\Exceptions\InvalidConfigException;
+use Lion\Security\Exceptions\InvalidConfigException;
 use UnexpectedValueException;
 
 class JWT

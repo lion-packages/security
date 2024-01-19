@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use LionSecurity\AES;
-use LionSecurity\Exceptions\InvalidConfigException;
+use Lion\Security\AES;
+use Lion\Security\Exceptions\InvalidConfigException;
 use LionTest\Test;
 use ReflectionClass;
 use stdClass;

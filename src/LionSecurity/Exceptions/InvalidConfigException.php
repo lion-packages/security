@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LionSecurity\Exceptions;
+namespace Lion\Security\Exceptions;
 
 use Exception;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support\Providers;
 
-use LionSecurity\AES;
+use Lion\Security\AES;
 
 trait AESEncryptionMethodProvider
 {

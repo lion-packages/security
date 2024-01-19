@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace LionSecurity;
+namespace Lion\Security;
 
-use LionSecurity\Exceptions\InvalidConfigException;
+use Lion\Security\Exceptions\InvalidConfigException;
 
 class AES
 {

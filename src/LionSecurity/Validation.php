@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LionSecurity;
+namespace Lion\Security;
 
 use Closure;
 use Valitron\Validator;
