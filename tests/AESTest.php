@@ -6,7 +6,7 @@ namespace Tests;
 
 use Lion\Security\AES;
 use Lion\Security\Exceptions\InvalidConfigException;
-use LionTest\Test;
+use Lion\Test\Test;
 use ReflectionClass;
 use stdClass;
 use Tests\Support\Providers\AESEncryptionMethodProvider;

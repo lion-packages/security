@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Exceptions;
 
 use Lion\Security\Exceptions\InvalidConfigException;
-use PHPUnit\Framework\TestCase;
+use Lion\Test\Test;
 
-class AESExceptionTest extends TestCase
+class AESExceptionTest extends Test
 {
     public function testExceptionIsThrown(): void
     {

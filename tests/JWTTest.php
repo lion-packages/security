@@ -8,7 +8,7 @@ use Lion\Security\AES;
 use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\JWT;
 use Lion\Security\RSA;
-use LionTest\Test;
+use Lion\Test\Test;
 
 class JWTTest extends Test
 {

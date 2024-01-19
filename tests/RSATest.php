@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use Lion\Security\RSA;
-use LionTest\Test;
+use Lion\Test\Test;
 use OpenSSLAsymmetricKey;
 use stdClass;
 
