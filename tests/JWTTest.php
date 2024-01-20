@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use LionSecurity\AES;
-use LionSecurity\Exceptions\InvalidConfigException;
-use LionSecurity\JWT;
-use LionSecurity\RSA;
-use LionTest\Test;
+use Lion\Security\AES;
+use Lion\Security\Exceptions\InvalidConfigException;
+use Lion\Security\JWT;
+use Lion\Security\RSA;
+use Lion\Test\Test;
 
 class JWTTest extends Test
 {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use LionSecurity\Validation;
-use LionTest\Test;
+use Lion\Security\Validation;
+use Lion\Test\Test;
 
 class ValidationTest extends Test
 {

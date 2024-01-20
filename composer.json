@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "LionSecurity\\": "src/LionSecurity/"
+            "Lion\\Security\\": "src/LionSecurity/"
         }
     },
     "autoload-dev": {
@@ -20,7 +20,7 @@
         "vlucas/valitron": "^1.4"
     },
     "require-dev": {
-        "lion/test": "^1.0",
+        "lion/test": "^1.4",
         "phpunit/phpunit": "^10.4"
     }
 }

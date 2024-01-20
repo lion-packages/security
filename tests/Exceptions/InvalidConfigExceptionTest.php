@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Exceptions;
 
-use LionSecurity\Exceptions\InvalidConfigException;
-use PHPUnit\Framework\TestCase;
+use Lion\Security\Exceptions\InvalidConfigException;
+use Lion\Test\Test;
 
-class InvalidConfigExceptionTest extends TestCase
+class InvalidConfigExceptionTest extends Test
 {
     public function testExceptionIsThrown(): void
     {

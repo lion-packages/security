@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use LionSecurity\AES;
-use LionSecurity\Exceptions\InvalidConfigException;
-use LionTest\Test;
+use Lion\Security\AES;
+use Lion\Security\Exceptions\InvalidConfigException;
+use Lion\Test\Test;
 use ReflectionClass;
 use stdClass;
 use Tests\Support\Providers\AESEncryptionMethodProvider;
