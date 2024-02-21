@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Lion\Security;
 
 use Lion\Security\Exceptions\InvalidConfigException;
+use Lion\Security\Interfaces\ConfigInterface;
+use Lion\Security\Interfaces\EncryptionInterface;
+use Lion\Security\Interfaces\ObjectInterface;
 
-class AES
+class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
 {
     const AES_128_CBC = 'aes-128-cbc';
     const AES_128_CBC_CTS = 'aes-128-cbc-cts';
@@ -69,8 +72,88 @@ class AES
     private string $iv = '';
 
     /**
-     * Clear variables so they have their original value
+     * {@inheritdoc}
      * */
+    public function config(array $config): AES
+    {
+        if (empty($config['key'])) {
+            throw new InvalidConfigException('The key has not been defined');
+        } else {
+            $this->key = $config['key'];
+        }
+
+        if (empty($config['iv'])) {
+            throw new InvalidConfigException('The Iv has not been defined');
+        } else {
+            $this->iv = $config['iv'];
+        }
+
+        if (empty($config['method']) && '' === $this->method) {
+            $this->method = self::AES_256_CBC;
+        } else {
+            $this->method = $config['method'];
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     * */
+    public function get(): array|object
+    {
+        $values = $this->values;
+        $this->clean();
+
+        return $values;
+    }
+
+    /**
+     * {@inheritdoc}
+     * */
+    public function encode(string $key, string $value): AES
+    {
+        $encrypt = openssl_encrypt($value, $this->method, md5($this->key), OPENSSL_RAW_DATA, $this->iv);
+        $this->values[$key] = base64_encode($encrypt);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     * */
+    public function decode(array $rows): AES
+    {
+        foreach ($rows as $key => $row) {
+            $this->values[$key] = openssl_decrypt(
+                base64_decode($row),
+                $this->method,
+                md5($this->key),
+                OPENSSL_RAW_DATA,
+                $this->iv
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     * */
+    public function toObject(): AES
+    {
+        if (gettype($this->values) === 'array') {
+            $this->values = (object) $this->values;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Clear variables so they have their original value
+     *
+     * @return void
+     */
     private function clean(): void
     {
         $this->values = [];
@@ -81,10 +164,14 @@ class AES
 
     /**
      * Get length of certain encryption method
-     * */
-    public function cipherKeyLength(string $aesMethod): int|false
+     *
+     * @param  string $method [AES algorithm type]
+     *
+     * @return int|false
+     */
+    public function cipherKeyLength(string $method): int|false
     {
-        $length = match (trim(strtolower($aesMethod))) {
+        $length = match (trim(strtolower($method))) {
             self::AES_128_CBC => 16,
             self::AES_128_CBC_CTS => 16,
             self::AES_128_CBC_HMAC_SHA1 => 16,
@@ -146,33 +233,11 @@ class AES
     }
 
     /**
-     * Define settings for AES encryption
-     * */
-    public function config(array $config): AES
-    {
-        if (empty($config['key'])) {
-            throw new InvalidConfigException('The key has not been defined');
-        } else {
-            $this->key = $config['key'];
-        }
-
-        if (empty($config['iv'])) {
-            throw new InvalidConfigException('The Iv has not been defined');
-        } else {
-            $this->iv = $config['iv'];
-        }
-
-        if (empty($config['method']) && '' === $this->method) {
-            $this->method = self::AES_256_CBC;
-        } else {
-            $this->method = $config['method'];
-        }
-
-        return $this;
-    }
-
-    /**
-     *  Creates key and iv for aes encryption.
+     * Creates key and iv for aes encryption
+     *
+     * @param  string $method [AES algorithm type]
+     *
+     * @return AES
      */
     public function create(string $method): AES
     {
@@ -189,7 +254,11 @@ class AES
 
     /**
      * Defines the encryption method
-     * */
+     *
+     * @param  string $method [AES algorithm type]
+     *
+     * @return AES
+     */
     public function method(string $method): AES
     {
         $this->method = $method;
@@ -199,7 +268,11 @@ class AES
 
     /**
      * Defines the encryption key
-     * */
+     *
+     * @param  string $key [AES encryption KEY]
+     *
+     * @return AES
+     */
     public function key(string $key): AES
     {
         $this->key = $key;
@@ -209,63 +282,15 @@ class AES
 
     /**
      * Defines the encryption iv
-     * */
+     *
+     * @param  string $iv [AES encryption IV]
+     *
+     * @return AES
+     */
     public function iv(string $iv): AES
     {
         $this->iv = $iv;
 
         return $this;
-    }
-
-    /**
-     * Encrypt data with defined settings
-     * */
-    public function encode(string $key, string $value): AES
-    {
-        $encrypt = openssl_encrypt($value, $this->method, md5($this->key), OPENSSL_RAW_DATA, $this->iv);
-        $this->values[$key] = base64_encode($encrypt);
-
-        return $this;
-    }
-
-    /**
-     * Decodes the data with the defined settings
-     * */
-    public function decode(array $rows): AES
-    {
-        foreach ($rows as $key => $row) {
-            $this->values[$key] = openssl_decrypt(
-                base64_decode($row),
-                $this->method,
-                md5($this->key),
-                OPENSSL_RAW_DATA,
-                $this->iv
-            );
-        }
-
-        return $this;
-    }
-
-    /**
-     * Converts the list with data to an object
-     * */
-    public function toObject(): AES
-    {
-        if (gettype($this->values) === 'array') {
-            $this->values = (object) $this->values;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Returns the current array/object with the encrypted/decrypted data
-     * */
-    public function get(): array|object
-    {
-        $values = $this->values;
-        $this->clean();
-
-        return $values;
     }
 }
