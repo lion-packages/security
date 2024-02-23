@@ -4,242 +4,98 @@ declare(strict_types=1);
 
 namespace Lion\Security;
 
-use Lion\Security\Exceptions\InvalidConfigException;
+use Lion\Security\Exceptions\AESException;
+use Lion\Security\Interfaces\ConfigInterface;
+use Lion\Security\Interfaces\EncryptionInterface;
+use Lion\Security\Interfaces\ObjectInterface;
 
-class AES
+/**
+ * It allows you to generate the configuration required for AES encryption and
+ * decryption, it has methods that allow you to encrypt and decrypt data
+ * with AES
+ *
+ * @package Lion\Security
+ */
+class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
 {
-    const AES_128_CBC = "aes-128-cbc";
-    const AES_128_CBC_CTS = "aes-128-cbc-cts";
-    const AES_128_CBC_HMAC_SHA1 = "aes-128-cbc-hmac-sha1";
-    const AES_128_CBC_HMAC_SHA256 = "aes-128-cbc-hmac-sha256";
-    const AES_128_CCM = "aes-128-ccm";
-    const AES_128_CFB = "aes-128-cfb";
-    const AES_128_CFB1 = "aes-128-cfb1";
-    const AES_128_CFB8 = "aes-128-cfb8";
-    const AES_128_CTR = "aes-128-ctr";
-    const AES_128_ECB = "aes-128-ecb";
-    const AES_128_GCM = "aes-128-gcm";
-    const AES_128_OCB = "aes-128-ocb";
-    const AES_128_OFB = "aes-128-ofb";
-    const AES_128_SIV = "aes-128-siv";
-    const AES_128_WRAP = "aes-128-wrap";
-    const AES_128_WRAP_INV = "aes-128-wrap-inv";
-    const AES_128_WRAP_PAD = "aes-128-wrap-pad";
-    const AES_128_WRAP_PAD_INV = "aes-128-wrap-pad-inv";
-    const AES_128_XTS = "aes-128-xts";
-    const AES_192_CBC = "aes-192-cbc";
-    const AES_192_CBC_CTS = "aes-192-cbc-cts";
-    const AES_192_CCM = "aes-192-ccm";
-    const AES_192_CFB = "aes-192-cfb";
-    const AES_192_CFB1 = "aes-192-cfb1";
-    const AES_192_CFB8 = "aes-192-cfb8";
-    const AES_192_CTR = "aes-192-ctr";
-    const AES_192_ECB = "aes-192-ecb";
-    const AES_192_GCM = "aes-192-gcm";
-    const AES_192_OCB = "aes-192-ocb";
-    const AES_192_OFB = "aes-192-ofb";
-    const AES_192_SIV = "aes-192-siv";
-    const AES_192_WRAP = "aes-192-wrap";
-    const AES_192_WRAP_INV = "aes-192-wrap-inv";
-    const AES_192_WRAP_PAD = "aes-192-wrap-pad";
-    const AES_192_WRAP_PAD_INV = "aes-192-wrap-pad-inv";
-    const AES_256_CBC = "aes-256-cbc";
-    const AES_256_CBC_CTS = "aes-256-cbc-cts";
-    const AES_256_CBC_HMAC_SHA1 = "aes-256-cbc-hmac-sha1";
-    const AES_256_CBC_HMAC_SHA256 = "aes-256-cbc-hmac-sha256";
-    const AES_256_CCM = "aes-256-ccm";
-    const AES_256_CFB = "aes-256-cfb";
-    const AES_256_CFB1 = "aes-256-cfb1";
-    const AES_256_CFB8 = "aes-256-cfb8";
-    const AES_256_CTR = "aes-256-ctr";
-    const AES_256_ECB = "aes-256-ecb";
-    const AES_256_GCM = "aes-256-gcm";
-    const AES_256_OCB = "aes-256-ocb";
-    const AES_256_OFB = "aes-256-ofb";
-    const AES_256_SIV = "aes-256-siv";
-    const AES_256_WRAP = "aes-256-wrap";
-    const AES_256_WRAP_INV = "aes-256-wrap-inv";
-    const AES_256_WRAP_PAD = "aes-256-wrap-pad";
-    const AES_256_WRAP_PAD_INV = "aes-256-wrap-pad-inv";
-    const AES_256_XTS = "aes-256-xts";
-
-    private array|object $values = [];
-    private string $method = '';
-    private string $key = '';
-    private string $iv = '';
-
     /**
-     * Clear variables so they have their original value
-     * */
-    private function clean(): void
-    {
-        $this->values = [];
-        $this->method = '';
-        $this->key = '';
-        $this->iv = '';
-    }
-
-    /**
-     * Get length of certain encryption method
-     * */
-    public function cipherKeyLength(string $aesMethod): int|false
-    {
-        $length = match (trim(strtolower($aesMethod))) {
-            'aes-128-cbc' => 16,
-            'aes-128-cbc-cts' => 16,
-            'aes-128-cbc-hmac-sha1' => 16,
-            'aes-128-cbc-hmac-sha256' => 16,
-            'aes-128-ccm' => 16,
-            'aes-128-cfb' => 16,
-            'aes-128-cfb1' => 16,
-            'aes-128-cfb8' => 16,
-            'aes-128-ctr' => 16,
-            'aes-128-ecb' => 16,
-            'aes-128-gcm' => 16,
-            'aes-128-ocb' => 16,
-            'aes-128-ofb' => 16,
-            'aes-128-siv' => 16,
-            'aes-128-wrap' => 16,
-            'aes-128-wrap-inv' => 16,
-            'aes-128-wrap-pad' => 16,
-            'aes-128-wrap-pad-inv' => 16,
-            'aes-128-xts' => 16,
-            'aes-192-cbc' => 24,
-            'aes-192-cbc-cts' => 24,
-            'aes-192-ccm' => 24,
-            'aes-192-cfb' => 24,
-            'aes-192-cfb1' => 24,
-            'aes-192-cfb8' => 24,
-            'aes-192-ctr' => 24,
-            'aes-192-ecb' => 24,
-            'aes-192-gcm' => 24,
-            'aes-192-ocb' => 24,
-            'aes-192-ofb' => 24,
-            'aes-192-siv' => 24,
-            'aes-192-wrap' => 24,
-            'aes-192-wrap-inv' => 24,
-            'aes-192-wrap-pad' => 24,
-            'aes-192-wrap-pad-inv' => 24,
-            'aes-256-cbc' => 32,
-            'aes-256-cbc-cts' => 32,
-            'aes-256-cbc-hmac-sha1' => 32,
-            'aes-256-cbc-hmac-sha256' => 32,
-            'aes-256-ccm' => 32,
-            'aes-256-cfb' => 32,
-            'aes-256-cfb1' => 32,
-            'aes-256-cfb8' => 32,
-            'aes-256-ctr' => 32,
-            'aes-256-ecb' => 32,
-            'aes-256-gcm' => 32,
-            'aes-256-ocb' => 32,
-            'aes-256-ofb' => 32,
-            'aes-256-siv' => 32,
-            'aes-256-wrap' => 32,
-            'aes-256-wrap-inv' => 32,
-            'aes-256-wrap-pad' => 32,
-            'aes-256-wrap-pad-inv' => 32,
-            'aes-256-xts' => 32,
-            default => false
-        };
-
-        return $length;
-    }
-
-    /**
-     * Define settings for AES encryption
-     * */
-    public function config(array $config): AES
-    {
-        if (empty($config['key'])) {
-            throw new InvalidConfigException('The key has not been defined');
-        } else {
-            $this->key = $config['key'];
-        }
-
-        if (empty($config['iv'])) {
-            throw new InvalidConfigException('The Iv has not been defined');
-        } else {
-            $this->iv = $config['iv'];
-        }
-
-        if (empty($config['method']) && '' === $this->method) {
-            $this->method = self::AES_256_CBC;
-        } else {
-            $this->method = $config['method'];
-        }
-
-        return $this;
-    }
-
-    /**
-     *  Creates key and iv for aes encryption.
+     * [It's a robust encryption method with a 256-bit key size and uses Cipher
+     * Block Chaining (CBC) mode]
+     *
+     * @const AES_256_CBC
      */
-    public function create(string $method): AES
-    {
-        $bits = $this->cipherKeyLength($method);
-
-        $this->values = [
-            'bits' => $bits,
-            'key' => bin2hex(random_bytes($bits / 2)),
-            'iv' => bin2hex(random_bytes($bits / 2))
-        ];
-
-        return $this;
-    }
+    const AES_256_CBC = 'aes-256-cbc';
 
     /**
-     * Defines the encryption method
+     * [Property that stores the values of any type of execution being
+     * performed 'create, encode, decode']
+     *
+     * @var array|object $values
+     */
+    private array|object $values = [];
+
+    /**
+     * [Property that contains the configuration defined for AES processes]
+     *
+     * @var array $config
+     */
+    private array $config = [];
+
+    /**
+     * {@inheritdoc}
      * */
-    public function method(string $method): AES
+    public function config(array|object $config): AES
     {
-        $this->method = $method;
+        $this->config = (array) $config;
 
         return $this;
     }
 
     /**
-     * Defines the encryption key
+     * {@inheritdoc}
      * */
-    public function key(string $key): AES
+    public function get(): array|object
     {
-        $this->key = $key;
+        $values = $this->values;
+        $this->clean();
 
-        return $this;
+        return $values;
     }
 
     /**
-     * Defines the encryption iv
-     * */
-    public function iv(string $iv): AES
-    {
-        $this->iv = $iv;
-
-        return $this;
-    }
-
-    /**
-     * Encrypt data with defined settings
+     * {@inheritdoc}
      * */
     public function encode(string $key, string $value): AES
     {
-        $encrypt = openssl_encrypt($value, $this->method, md5($this->key), OPENSSL_RAW_DATA, $this->iv);
+        $encrypt = openssl_encrypt(
+            $value,
+            $this->config['method'],
+            hex2bin($this->config['key']),
+            OPENSSL_RAW_DATA,
+            hex2bin($this->config['iv'])
+        );
+
+        if (!$encrypt) {
+            throw new AESException(openssl_error_string());
+        }
+
         $this->values[$key] = base64_encode($encrypt);
 
         return $this;
     }
 
     /**
-     * Decodes the data with the defined settings
+     * {@inheritdoc}
      * */
     public function decode(array $rows): AES
     {
         foreach ($rows as $key => $row) {
             $this->values[$key] = openssl_decrypt(
                 base64_decode($row),
-                $this->method,
-                md5($this->key),
+                $this->config['method'],
+                hex2bin($this->config['key']),
                 OPENSSL_RAW_DATA,
-                $this->iv
+                hex2bin($this->config['iv'])
             );
         }
 
@@ -247,7 +103,7 @@ class AES
     }
 
     /**
-     * Converts the list with data to an object
+     * {@inheritdoc}
      * */
     public function toObject(): AES
     {
@@ -259,13 +115,50 @@ class AES
     }
 
     /**
-     * Returns the current array/object with the encrypted/decrypted data
-     * */
-    public function get(): array|object
+     * Clear variables so they have their original value
+     *
+     * @return void
+     */
+    private function clean(): void
     {
-        $values = $this->values;
-        $this->clean();
+        $this->values = [];
+        $this->config = [];
+    }
 
-        return $values;
+    /**
+     * Get length of certain encryption method
+     *
+     * @param  string $method [AES algorithm type]
+     *
+     * @return bool|int
+     */
+    public function cipherKeyLength(string $method): bool|int
+    {
+        $length = match (trim(strtolower($method))) {
+            self::AES_256_CBC => 32,
+            default => false
+        };
+
+        return $length;
+    }
+
+    /**
+     * Creates key and iv for aes encryption
+     *
+     * @param  string $method [AES algorithm type]
+     *
+     * @return AES
+     */
+    public function create(string $method): AES
+    {
+        $cipherKey = $this->cipherKeyLength($method);
+
+        $this->values = [
+            'key' => bin2hex(openssl_random_pseudo_bytes($cipherKey)),
+            'iv' => bin2hex(openssl_random_pseudo_bytes(16)),
+            'method' => $method
+        ];
+
+        return $this;
     }
 }

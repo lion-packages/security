@@ -6,6 +6,7 @@ namespace Tests;
 
 use Lion\Security\Validation;
 use Lion\Test\Test;
+use Valitron\Validator;
 
 class ValidationTest extends Test
 {
@@ -26,7 +27,7 @@ class ValidationTest extends Test
 
     public function testValidateSuccess(): void
     {
-        $result = $this->validation->validate(['field' => 'value'], function ($validator) {
+        $result = $this->validation->validate(['field' => 'value'], function (Validator $validator) {
             $validator->rule('required', 'field');
         });
 
