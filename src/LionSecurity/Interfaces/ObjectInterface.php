@@ -7,6 +7,11 @@ namespace Lion\Security\Interfaces;
 use Lion\Security\AES;
 use Lion\Security\RSA;
 
+/**
+ * Represents the implementation for converting data from lists to objects
+ *
+ * @package Lion\Security\Interfaces
+ */
 interface ObjectInterface
 {
     /**

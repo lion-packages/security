@@ -19,12 +19,26 @@ use Lion\Security\Interfaces\ObjectInterface;
 class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
 {
     /**
-     * @const AES_256_CBC [It's a robust encryption method with a 256-bit key
-     * size and uses Cipher Block Chaining (CBC) mode]
+     * [It's a robust encryption method with a 256-bit key size and uses Cipher
+     * Block Chaining (CBC) mode]
+     *
+     * @const AES_256_CBC
      */
     const AES_256_CBC = 'aes-256-cbc';
 
+    /**
+     * [Property that stores the values of any type of execution being
+     * performed 'create, encode, decode']
+     *
+     * @var array|object $values
+     */
     private array|object $values = [];
+
+    /**
+     * [Property that contains the configuration defined for AES processes]
+     *
+     * @var array $config
+     */
     private array $config = [];
 
     /**
@@ -116,9 +130,9 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
      *
      * @param  string $method [AES algorithm type]
      *
-     * @return array|bool|int
+     * @return bool|int
      */
-    public function cipherKeyLength(string $method): array|bool|int
+    public function cipherKeyLength(string $method): bool|int
     {
         $length = match (trim(strtolower($method))) {
             self::AES_256_CBC => 32,

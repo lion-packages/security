@@ -9,15 +9,62 @@ use Lion\Security\Interfaces\EncryptionInterface;
 use Lion\Security\Interfaces\ObjectInterface;
 use OpenSSLAsymmetricKey;
 
+/**
+ * Allows you to generate the required configuration for public and private
+ * keys, has methods that allow you to encrypt and decrypt data with RSA
+ *
+ * @package Lion\Security
+ */
 class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
 {
+    /**
+     * [Represents the public key object]
+     *
+     * @var null|OpenSSLAsymmetricKey $publicKey
+     */
 	private ?OpenSSLAsymmetricKey $publicKey = null;
+
+    /**
+     * [Represents the private key object]
+     *
+     * @var null|OpenSSLAsymmetricKey $privateKey
+     */
 	private ?OpenSSLAsymmetricKey $privateKey = null;
 
+    /**
+     * [Property that stores the values of any type of execution being
+     * performed 'encode, decode']
+     *
+     * @var array|object $values
+     */
     private array|object $values = [];
+
+    /**
+     * [Defines the path where the public and private keys are stored]
+     *
+     * @var string $urlPath
+     */
 	private string $urlPath = './storage/keys/';
+
+    /**
+     * [Defines the path where the openssl.cnf file is stored to generate keys]
+     *
+     * @var string $rsaConfig
+     */
     private string $rsaConfig = '/etc/ssl/openssl.cnf';
+
+    /**
+     * [Defines the number of Bits to generate the keys]
+     *
+     * @var int $rsaPrivateKeyBits
+     */
     private int $rsaPrivateKeyBits = 2048;
+
+    /**
+     * [Sets the default signing algorithm]
+     *
+     * @var string
+     */
     private string $rsaDefaultMd = 'sha256';
 
     /**
@@ -129,10 +176,10 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Generate keys on a defined path
      *
-     * @param  string $urlPath [defines the url where the key will be saved]
+     * @param  string $urlPath [Defines the url where the key will be saved]
      * @param  string $keyValue [Key content]
-     * @param  bool|boolean $isPublic [determines if the key is public or
-     * private with a boolean value]
+     * @param  bool $isPublic [Determines if the key is public or private with
+     * a boolean value]
      *
      * @return void
      */
@@ -146,7 +193,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Create public and private key in a route
      *
-     * @param  string $urlPath [defines the url where the key will be saved]
+     * @param  string $urlPath [Defines the url where the key will be saved]
      *
      * @return RSA
      */
@@ -182,7 +229,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Modify the current key path
      *
-     * @param string $urlPath [defines the url where the key will be saved]
+     * @param string $urlPath [Defines the url where the key will be saved]
      *
      * @return RSA;
      */
@@ -196,7 +243,9 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Returns the current public key
      *
-     * @return ?OpenSSLAsymmetricKey
+     * @return null|OpenSSLAsymmetricKey
+     *
+     * @internal
      */
 	public function getPublicKey(): ?OpenSSLAsymmetricKey
     {
@@ -206,7 +255,9 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Returns the current private key
      *
-     * @return ?OpenSSLAsymmetricKey
+     * @return null|OpenSSLAsymmetricKey
+     *
+     * @internal
      * */
 	public function getPrivateKey(): ?OpenSSLAsymmetricKey
     {
@@ -216,9 +267,11 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Modify the path for the configuration file used by OpenSSL
      *
-     * @param  string $rsaConfig [defines the path of the openssl.cnf file]
+     * @param  string $rsaConfig [Defines the path of the openssl.cnf file]
      *
      * @return RSA
+     *
+     * @internal
      */
     public function rsaConfig(string $rsaConfig): RSA
     {
@@ -230,9 +283,11 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Modify by specifying the length of the RSA key
      *
-     * @param  int $rsaPrivateKeyBits [defines the number of bits]
+     * @param  int $rsaPrivateKeyBits [Defines the number of bits]
      *
      * @return RSA
+     *
+     * @internal
      */
     public function rsaPrivateKeyBits(int $rsaPrivateKeyBits): RSA
     {
@@ -247,6 +302,8 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * @param  string $rsaDefaultMd [Encryption protocol]
      *
      * @return RSA
+     *
+     * @internal
      */
     public function rsaDefaultMd(string $rsaDefaultMd): RSA
     {

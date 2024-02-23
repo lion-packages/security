@@ -8,6 +8,11 @@ use Lion\Security\AES;
 use Lion\Security\JWT;
 use Lion\Security\RSA;
 
+/**
+ * Represents the implementation for configuring encryption processes
+ *
+ * @package Lion\Security\Interfaces
+ */
 interface ConfigInterface
 {
     /**
@@ -33,7 +38,7 @@ interface ConfigInterface
      * * jwtExp
      * * jwtDefaultMD
      *
-     * @param  array $config [configuration data list]
+     * @param  array $config [Configuration data list]
      *
      * @return AES|JWT|RSA
      */

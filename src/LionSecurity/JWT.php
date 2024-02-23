@@ -16,13 +16,55 @@ use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\Interfaces\ConfigInterface;
 use UnexpectedValueException;
 
+/**
+ * Allows you to generate the required configuration for JWT tokens, has methods
+ * that allow you to encrypt and decrypt data with JWT
+ *
+ * @package Lion\Security
+ */
 class JWT implements ConfigInterface
 {
+    /**
+     * [Property that stores the values of any type of execution being
+     * performed 'encode, decode']
+     *
+     * @var array|object|string $values
+     */
     private array|object|string $values = [];
+
+    /**
+     * [Property that contains the configuration defined for JWT processes]
+     *
+     * @var array $configValues
+     */
     private array $configValues = [];
+
+    /**
+     * [Defines the url of the server that generates the JWT]
+     *
+     * @var string $jwtServerUrl
+     */
     private string $jwtServerUrl = 'http://127.0.0.1:8000';
+
+    /**
+     * [Defines the url of the site that uses the JWT]
+     *
+     * @var string $jwtServerUrlAud
+     */
     private string $jwtServerUrlAud = 'http://127.0.0.1:5173';
+
+    /**
+     * [Stores the lifetime of the JWT]
+     *
+     * @var int $jwtExp
+     */
     private int $jwtExp = 3600;
+
+    /**
+     * [Sets the default signing algorithm]
+     *
+     * @var string $jwtDefaultMD
+     */
     private string $jwtDefaultMD = 'RS256';
 
     /**
@@ -106,9 +148,9 @@ class JWT implements ConfigInterface
     /**
      * Encrypt data with defined settings
      *
-     * @param  array $data [list of data to encrypt]
-     * @param  int $time [validity time]
-     * @param  int $bytes [number of bits]
+     * @param  array $data [List of data to encrypt]
+     * @param  int $time [Validity time]
+     * @param  int $bytes [Number of bits]
      *
      * @return JWT
      */
@@ -140,7 +182,7 @@ class JWT implements ConfigInterface
     /**
      * Decodes the data with the defined settings
      *
-     * @param  string $jwt [json web token]
+     * @param  string $jwt [Json web token]
      *
      * @return JWT
      */
@@ -193,7 +235,7 @@ class JWT implements ConfigInterface
     /**
      * Modify the exp to generate the token
      *
-     * @param  int $jwtExp [validity time]
+     * @param  int $jwtExp [Validity time]
      *
      * @return JWT
      */
@@ -207,7 +249,7 @@ class JWT implements ConfigInterface
     /**
      * Modify the defaultMD to generate the token
      *
-     * @param  int $jwtDefaultMD [encryption protocol]
+     * @param  int $jwtDefaultMD [Encryption protocol]
      *
      * @return JWT
      */

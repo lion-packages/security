@@ -8,13 +8,18 @@ use Lion\Security\AES;
 use Lion\Security\JWT;
 use Lion\Security\RSA;
 
+/**
+ * Represents the implementation of methods for encryption and decryption
+ *
+ * @package Lion\Security\Interfaces
+ */
 interface EncryptionInterface
 {
     /**
      * Encrypt data with defined settings
      *
-     * @param  string $key [key of the word to be encrypted]
-     * @param  string $value [value of the word to be encrypted]
+     * @param  string $key [Key of the word to be encrypted]
+     * @param  string $value [Value of the word to be encrypted]
      *
      * @return AES|JWT|RSA
      */
