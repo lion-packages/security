@@ -21,6 +21,7 @@
     },
     "require-dev": {
         "lion/test": "^1.4",
-        "phpunit/phpunit": "^10.4"
+        "phpunit/phpunit": "^10.4",
+        "guzzlehttp/guzzle": "^7.8"
     }
 }
