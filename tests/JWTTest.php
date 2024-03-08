@@ -128,15 +128,16 @@ class JWTTest extends Test
         $this->assertEquals(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
     }
 
-    public function testEncodeWithValidConfig()
+    public function testEncodeWithRSA()
     {
         $privateKey = $this->rsa->config(self::CONFIG_RSA)->create()->getPrivateKey();
+
         $encode = $this->jwt->config(['privateKey' => $privateKey])->encode(['key' => 'value'], 3600, 16)->get();
 
         $this->assertIsString($encode);
     }
 
-    public function testEncodeWithValidConfigWithAes()
+    public function testEncodeWithAES()
     {
         $encode = $this->jwt
             ->config(['privateKey' => self::IV, ...self::CONFIG_JWT_AES])
@@ -156,11 +157,14 @@ class JWTTest extends Test
     public function testDecodeWithValidJWT(): void
     {
         $this->rsa->config(self::CONFIG_RSA)->create();
+
         $privateKey = $this->rsa->getPrivateKey();
-        $publicKey = $this->rsa->getPublicKey();
+
         $jwt = $this->jwt->config(['privateKey' => $privateKey])->encode(['key' => 'value'], 3600, 16)->get();
 
         $this->assertIsString($jwt);
+
+        $publicKey = $this->rsa->getPublicKey();
 
         $decode = $this->jwt->config(['publicKey' => $publicKey])->decode($jwt)->get();
 
@@ -248,6 +252,15 @@ class JWTTest extends Test
         $this->assertObjectHasProperty('data', $decode);
         $this->assertObjectHasProperty('key', $decode->data);
         $this->assertSame('value', $decode->data->key);
+    }
+
+    public function testSetEncryptionMethod(): void
+    {
+        $this->rsa->config(self::CONFIG_RSA)->create();
+
+        $encode = $this->jwt->setEncryptionMethod($this->rsa)->encode(['key' => 'value'], 3600, 16)->get();
+
+        $this->assertIsString($encode);
     }
 
     public function testGet(): void

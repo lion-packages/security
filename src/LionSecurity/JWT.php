@@ -267,6 +267,22 @@ class JWT implements ConfigInterface
     }
 
     /**
+     * Defines the type of encryption
+     *
+     * @param string $encryptionMethod [Encryption type 'AES' or 'RSA']
+     */
+    public function setEncryptionMethod(RSA $rsa): JWT
+    {
+        $rsa->init();
+
+        $this->configValues['publicKey'] = $rsa->getPublicKey();
+
+        $this->configValues['privateKey'] = $rsa->getPrivateKey();
+
+        return $this;
+    }
+
+    /**
      * Gets the HTTP_AUTHORIZATION header token
      *
      * @return string|bool
