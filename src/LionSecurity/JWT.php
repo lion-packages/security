@@ -99,6 +99,7 @@ class JWT implements ConfigInterface
     public function get(): array|object|string
     {
         $values = $this->values;
+
         $this->clean();
 
         return $values;
@@ -112,10 +113,15 @@ class JWT implements ConfigInterface
     private function clean(): void
     {
         $this->values = [];
+
         $this->configValues = [];
+
         $this->jwtServerUrl = 'http://127.0.0.1:8000';
+
         $this->jwtServerUrlAud = 'http://127.0.0.1:5173';
+
         $this->jwtExp = 3600;
+
         $this->jwtDefaultMD = 'RS256';
     }
 
