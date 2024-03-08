@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use GuzzleHttp\Client;
 use Lion\Security\AES;
 use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\JWT;
@@ -227,17 +228,21 @@ class JWTTest extends Test
     public function testGetJWTWithValidAuthorizationHeader(): void
     {
         $this->rsa->config(self::CONFIG_RSA)->create();
-        $publicKey = $this->rsa->getPublicKey();
-        $privateKey = $this->rsa->getPrivateKey();
-        $jwt = $this->jwt->config(['privateKey' => $privateKey])->encode(['key' => 'value'], 3600, 16)->get();
+
+        $jwt = $this->jwt->config(['privateKey' => $this->rsa->getPrivateKey()])->encode(['key' => 'value'], 3600, 16)->get();
 
         $this->assertIsString($jwt);
 
-        $_SERVER['Authorization'] = "Bearer {$jwt}";
+        $getJwt = json_decode(
+            (new Client())
+                ->get(self::JWT_SERVER_URL, ['headers' => ['Authorization' => "Bearer {$jwt}"]])
+                ->getBody()
+                ->getContents()
+        );
 
-        $this->assertEquals($jwt, $this->jwt->getJWT());
+        $this->assertEquals($jwt, $getJwt);
 
-        $decode = $this->jwt->config(['publicKey' => $publicKey])->decode($jwt)->get();
+        $decode = $this->jwt->config(['publicKey' => $this->rsa->getPublicKey()])->decode($getJwt)->get();
 
         $this->assertIsObject($decode);
         $this->assertObjectHasProperty('data', $decode);

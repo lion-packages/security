@@ -261,14 +261,16 @@ class JWT implements ConfigInterface
     }
 
     /**
-     * Gets the Authorization header token
+     * Gets the HTTP_AUTHORIZATION header token
      *
      * @return string|bool
      */
     public function getJWT(): string|bool
     {
-        if (isset($_SERVER['Authorization'])) {
-            if (preg_match('/Bearer\s(\S+)/', $_SERVER['Authorization'], $matches)) {
+        $headers = $_SERVER;
+
+        if (isset($headers['HTTP_AUTHORIZATION'])) {
+            if (preg_match('/Bearer\s(\S+)/', $headers['HTTP_AUTHORIZATION'], $matches)) {
                 return $matches[1];
             }
         }
