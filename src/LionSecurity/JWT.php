@@ -99,6 +99,7 @@ class JWT implements ConfigInterface
     public function get(): array|object|string
     {
         $values = $this->values;
+
         $this->clean();
 
         return $values;
@@ -112,10 +113,15 @@ class JWT implements ConfigInterface
     private function clean(): void
     {
         $this->values = [];
+
         $this->configValues = [];
+
         $this->jwtServerUrl = 'http://127.0.0.1:8000';
+
         $this->jwtServerUrlAud = 'http://127.0.0.1:5173';
+
         $this->jwtExp = 3600;
+
         $this->jwtDefaultMD = 'RS256';
     }
 
@@ -261,14 +267,32 @@ class JWT implements ConfigInterface
     }
 
     /**
-     * Gets the Authorization header token
+     * Defines the type of encryption
+     *
+     * @param string $encryptionMethod [Encryption type 'AES' or 'RSA']
+     */
+    public function setEncryptionMethod(RSA $rsa): JWT
+    {
+        $rsa->init();
+
+        $this->configValues['publicKey'] = $rsa->getPublicKey();
+
+        $this->configValues['privateKey'] = $rsa->getPrivateKey();
+
+        return $this;
+    }
+
+    /**
+     * Gets the HTTP_AUTHORIZATION header token
      *
      * @return string|bool
      */
     public function getJWT(): string|bool
     {
-        if (isset($_SERVER['Authorization'])) {
-            if (preg_match('/Bearer\s(\S+)/', $_SERVER['Authorization'], $matches)) {
+        $headers = $_SERVER;
+
+        if (isset($headers['HTTP_AUTHORIZATION'])) {
+            if (preg_match('/Bearer\s(\S+)/', $headers['HTTP_AUTHORIZATION'], $matches)) {
                 return $matches[1];
             }
         }

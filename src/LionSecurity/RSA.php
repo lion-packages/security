@@ -97,6 +97,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     public function get(): array|object
     {
         $values = $this->values;
+
         $this->clean();
 
         return $values;
@@ -108,7 +109,9 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     public function encode(string $key, string $value): RSA
     {
         $this->init();
+
         openssl_public_encrypt($value, $data, $this->publicKey);
+
         $this->values[$key] = $data;
 
         return $this;
@@ -123,6 +126,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
 
         foreach ($rows as $key => $row) {
             openssl_private_decrypt($row, $data, $this->privateKey);
+
             $this->values[$key] = $data;
         }
 
@@ -167,9 +171,13 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     private function clean(): void
     {
         $this->values = [];
+
         $this->urlPath = './storage/keys/';
+
         $this->rsaConfig = '/etc/ssl/openssl.cnf';
+
         $this->rsaPrivateKeyBits = 2048;
+
         $this->rsaDefaultMd = 'sha256';
     }
 
@@ -206,11 +214,15 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
 		];
 
 		$generate = openssl_pkey_new($rsaConfig);
+
 		openssl_pkey_export($generate, $private, null, $rsaConfig);
+
 		$public = openssl_pkey_get_details($generate);
 
         $this->generateKeys($urlPath, $public['key']);
+
         $this->generateKeys($urlPath, $private, false);
+
         $this->init();
 
         return $this;
@@ -244,8 +256,6 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * Returns the current public key
      *
      * @return null|OpenSSLAsymmetricKey
-     *
-     * @internal
      */
 	public function getPublicKey(): ?OpenSSLAsymmetricKey
     {
@@ -256,8 +266,6 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * Returns the current private key
      *
      * @return null|OpenSSLAsymmetricKey
-     *
-     * @internal
      * */
 	public function getPrivateKey(): ?OpenSSLAsymmetricKey
     {
@@ -270,8 +278,6 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * @param  string $rsaConfig [Defines the path of the openssl.cnf file]
      *
      * @return RSA
-     *
-     * @internal
      */
     public function rsaConfig(string $rsaConfig): RSA
     {
@@ -286,8 +292,6 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * @param  int $rsaPrivateKeyBits [Defines the number of bits]
      *
      * @return RSA
-     *
-     * @internal
      */
     public function rsaPrivateKeyBits(int $rsaPrivateKeyBits): RSA
     {
@@ -302,8 +306,6 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * @param  string $rsaDefaultMd [Encryption protocol]
      *
      * @return RSA
-     *
-     * @internal
      */
     public function rsaDefaultMd(string $rsaDefaultMd): RSA
     {

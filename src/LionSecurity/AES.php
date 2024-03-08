@@ -57,6 +57,7 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
     public function get(): array|object
     {
         $values = $this->values;
+
         $this->clean();
 
         return $values;
@@ -122,6 +123,7 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
     private function clean(): void
     {
         $this->values = [];
+
         $this->config = [];
     }
 

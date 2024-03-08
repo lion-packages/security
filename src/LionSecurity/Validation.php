@@ -39,6 +39,7 @@ class Validation
 	public function validate(array $rows, Closure $validateFunction): object
     {
 		$validator = new Validator($rows);
+
 		$validateFunction($validator);
 
 		if ($validator->validate()) {
