@@ -11,8 +11,13 @@ use Lion\Security\Interfaces\ObjectInterface;
 
 /**
  * It allows you to generate the configuration required for AES encryption and
- * decryption, it has methods that allow you to encrypt and decrypt data
- * with AES
+ * decryption, it has methods that allow you to encrypt and decrypt data with
+ * AES
+ *
+ * @property array|object $values [Property that stores the values of any type
+ * of execution being performed 'create, encode, decode']
+ * @property array $config [Property that contains the configuration defined for
+ * AES processes]
  *
  * @package Lion\Security
  */
@@ -130,7 +135,7 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Get length of certain encryption method
      *
-     * @param  string $method [AES algorithm type]
+     * @param string $method [AES algorithm type]
      *
      * @return bool|int
      */
@@ -147,7 +152,7 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Creates key and iv for aes encryption
      *
-     * @param  string $method [AES algorithm type]
+     * @param string $method [AES algorithm type]
      *
      * @return AES
      */

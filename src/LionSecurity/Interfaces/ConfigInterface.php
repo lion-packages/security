@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Lion\Security\Interfaces;
 
-use Lion\Security\AES;
-use Lion\Security\JWT;
-use Lion\Security\RSA;
-
 /**
  * Represents the implementation for configuring encryption processes
  *
@@ -38,11 +34,11 @@ interface ConfigInterface
      * * jwtExp
      * * jwtDefaultMD
      *
-     * @param  array $config [Configuration data list]
+     * @param array $config [Configuration data list]
      *
-     * @return AES|JWT|RSA
+     * @return ConfigInterface
      */
-    public function config(array $config): AES|JWT|RSA;
+    public function config(array $config): ConfigInterface;
 
     /**
      * Returns the current array/object with the generated data
