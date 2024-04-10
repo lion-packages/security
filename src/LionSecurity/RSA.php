@@ -13,6 +13,20 @@ use OpenSSLAsymmetricKey;
  * Allows you to generate the required configuration for public and private
  * keys, has methods that allow you to encrypt and decrypt data with RSA
  *
+ * @property null|OpenSSLAsymmetricKey $publicKey [Represents the public key
+ * object]
+ * @property null|OpenSSLAsymmetricKey $privateKey [Represents the private key
+ * object]
+ * @property array|object $values [Property that stores the values of any type
+ * of execution being performed 'encode, decode']
+ * @property string $urlPath [Defines the path where the public and private keys
+ * are stored]
+ * @property string $rsaConfig [Defines the path where the openssl.cnf file is
+ * stored to generate keys]
+ * @property int $rsaPrivateKeyBits [Defines the number of Bits to generate the
+ * keys]
+ * @property string $rsaDefaultMd [Sets the default signing algorithm]
+ *
  * @package Lion\Security
  */
 class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
@@ -22,14 +36,14 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      *
      * @var null|OpenSSLAsymmetricKey $publicKey
      */
-	private ?OpenSSLAsymmetricKey $publicKey = null;
+    private ?OpenSSLAsymmetricKey $publicKey = null;
 
     /**
      * [Represents the private key object]
      *
      * @var null|OpenSSLAsymmetricKey $privateKey
      */
-	private ?OpenSSLAsymmetricKey $privateKey = null;
+    private ?OpenSSLAsymmetricKey $privateKey = null;
 
     /**
      * [Property that stores the values of any type of execution being
@@ -44,7 +58,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      *
      * @var string $urlPath
      */
-	private string $urlPath = './storage/keys/';
+    private string $urlPath = './storage/keys/';
 
     /**
      * [Defines the path where the openssl.cnf file is stored to generate keys]
@@ -63,7 +77,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * [Sets the default signing algorithm]
      *
-     * @var string
+     * @var string $rsaDefaultMd
      */
     private string $rsaDefaultMd = 'sha256';
 
@@ -184,9 +198,9 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Generate keys on a defined path
      *
-     * @param  string $urlPath [Defines the url where the key will be saved]
-     * @param  string $keyValue [Key content]
-     * @param  bool $isPublic [Determines if the key is public or private with
+     * @param string $urlPath [Defines the url where the key will be saved]
+     * @param string $keyValue [Key content]
+     * @param bool $isPublic [Determines if the key is public or private with
      * a boolean value]
      *
      * @return void
@@ -201,23 +215,23 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Create public and private key in a route
      *
-     * @param  string $urlPath [Defines the url where the key will be saved]
+     * @param string $urlPath [Defines the url where the key will be saved]
      *
      * @return RSA
      */
-	public function create(string $urlPath = ''): RSA
+    public function create(string $urlPath = ''): RSA
     {
-		$rsaConfig = [
-			'config' => $this->rsaConfig,
-			'private_key_bits' => $this->rsaPrivateKeyBits,
-			'default_md' => $this->rsaDefaultMd
-		];
+        $rsaConfig = [
+            'config' => $this->rsaConfig,
+            'private_key_bits' => $this->rsaPrivateKeyBits,
+            'default_md' => $this->rsaDefaultMd
+        ];
 
-		$generate = openssl_pkey_new($rsaConfig);
+        $generate = openssl_pkey_new($rsaConfig);
 
-		openssl_pkey_export($generate, $private, null, $rsaConfig);
+        openssl_pkey_export($generate, $private, null, $rsaConfig);
 
-		$public = openssl_pkey_get_details($generate);
+        $public = openssl_pkey_get_details($generate);
 
         $this->generateKeys($urlPath, $public['key']);
 
@@ -226,56 +240,56 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
         $this->init();
 
         return $this;
-	}
+    }
 
     /**
      * Returns the current path of the keys
      *
      * @return string
      */
-	public function getUrlPath(): string
+    public function getUrlPath(): string
     {
-		return $this->urlPath;
-	}
+        return $this->urlPath;
+    }
 
     /**
      * Modify the current key path
      *
      * @param string $urlPath [Defines the url where the key will be saved]
      *
-     * @return RSA;
+     * @return RSA
      */
-	public function setUrlPath(string $urlPath): RSA
+    public function setUrlPath(string $urlPath): RSA
     {
-		$this->urlPath = $urlPath;
+        $this->urlPath = $urlPath;
 
         return $this;
-	}
+    }
 
     /**
      * Returns the current public key
      *
      * @return null|OpenSSLAsymmetricKey
      */
-	public function getPublicKey(): ?OpenSSLAsymmetricKey
+    public function getPublicKey(): ?OpenSSLAsymmetricKey
     {
-		return $this->publicKey;
-	}
+        return $this->publicKey;
+    }
 
     /**
      * Returns the current private key
      *
      * @return null|OpenSSLAsymmetricKey
      * */
-	public function getPrivateKey(): ?OpenSSLAsymmetricKey
+    public function getPrivateKey(): ?OpenSSLAsymmetricKey
     {
-		return $this->privateKey;
-	}
+        return $this->privateKey;
+    }
 
     /**
      * Modify the path for the configuration file used by OpenSSL
      *
-     * @param  string $rsaConfig [Defines the path of the openssl.cnf file]
+     * @param string $rsaConfig [Defines the path of the openssl.cnf file]
      *
      * @return RSA
      */
@@ -289,7 +303,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Modify by specifying the length of the RSA key
      *
-     * @param  int $rsaPrivateKeyBits [Defines the number of bits]
+     * @param int $rsaPrivateKeyBits [Defines the number of bits]
      *
      * @return RSA
      */
@@ -303,7 +317,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Modify the cryptographic protocol configuration: 'sha256'
      *
-     * @param  string $rsaDefaultMd [Encryption protocol]
+     * @param string $rsaDefaultMd [Encryption protocol]
      *
      * @return RSA
      */

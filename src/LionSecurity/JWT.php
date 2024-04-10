@@ -20,6 +20,17 @@ use UnexpectedValueException;
  * Allows you to generate the required configuration for JWT tokens, has methods
  * that allow you to encrypt and decrypt data with JWT
  *
+ * @property array|object|string $values [Property that stores the values of any
+ * type of execution being performed 'encode, decode']
+ * @property array $configValues [Property that contains the configuration
+ * defined for JWT processes]
+ * @property string $jwtServerUrl [Defines the url of the server that generates
+ * the JWT]
+ * @property string $jwtServerUrlAud [Defines the url of the site that uses the
+ * JWT]
+ * @property int $jwtExp [Stores the lifetime of the JWT]
+ * @property string $jwtDefaultMD [Sets the default signing algorithm]
+ *
  * @package Lion\Security
  */
 class JWT implements ConfigInterface
@@ -128,7 +139,7 @@ class JWT implements ConfigInterface
     /**
      * Run the encryption/decryption process
      *
-     * @param  Closure $executeFunction [Execute a function using exceptions]
+     * @param Closure $executeFunction [Execute a function using exceptions]
      *
      * @return void
      */
@@ -154,15 +165,15 @@ class JWT implements ConfigInterface
     /**
      * Encrypt data with defined settings
      *
-     * @param  array $data [List of data to encrypt]
-     * @param  int $time [Validity time]
-     * @param  int $bytes [Number of bits]
+     * @param array $data [List of data to encrypt]
+     * @param int $time [Validity time]
+     * @param int $bytes [Number of bits]
      *
      * @return JWT
      */
     public function encode(array $data, int $time = 0, int $bytes = 16): JWT
     {
-        $this->execute(function() use ($data, $time, $bytes) {
+        $this->execute(function () use ($data, $time, $bytes) {
             if (empty($this->configValues['privateKey'])) {
                 throw new InvalidConfigException('The privateKey has not been defined');
             }
@@ -188,13 +199,13 @@ class JWT implements ConfigInterface
     /**
      * Decodes the data with the defined settings
      *
-     * @param  string $jwt [Json web token]
+     * @param string $jwt [Json web token]
      *
      * @return JWT
      */
     public function decode(?string $jwt = ''): JWT
     {
-        $this->execute(function() use ($jwt) {
+        $this->execute(function () use ($jwt) {
             if (empty($this->configValues['publicKey'])) {
                 throw new InvalidConfigException('The publicKey has not been defined');
             }
@@ -212,7 +223,7 @@ class JWT implements ConfigInterface
     /**
      * Modify the serverUrl to generate the token
      *
-     * @param  string $jwtServerUrl [Server URL for the token]
+     * @param string $jwtServerUrl [Server URL for the token]
      *
      * @return JWT
      */
@@ -226,7 +237,7 @@ class JWT implements ConfigInterface
     /**
      * Modify the serverUrlAud to generate the token
      *
-     * @param  string $jwtServerUrlAud [Auxiliary URL of the site that uses it
+     * @param string $jwtServerUrlAud [Auxiliary URL of the site that uses it
      * for the token]
      *
      * @return JWT
@@ -241,7 +252,7 @@ class JWT implements ConfigInterface
     /**
      * Modify the exp to generate the token
      *
-     * @param  int $jwtExp [Validity time]
+     * @param int $jwtExp [Validity time]
      *
      * @return JWT
      */
@@ -255,7 +266,7 @@ class JWT implements ConfigInterface
     /**
      * Modify the defaultMD to generate the token
      *
-     * @param  int $jwtDefaultMD [Encryption protocol]
+     * @param int $jwtDefaultMD [Encryption protocol]
      *
      * @return JWT
      */

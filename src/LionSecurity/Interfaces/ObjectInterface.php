@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Lion\Security\Interfaces;
 
-use Lion\Security\AES;
-use Lion\Security\RSA;
-
 /**
  * Represents the implementation for converting data from lists to objects
  *
@@ -16,6 +13,8 @@ interface ObjectInterface
 {
     /**
      * Converts the list with data to an object
+     *
+     * @return ObjectInterface
      * */
-    public function toObject(): AES|RSA;
+    public function toObject(): ObjectInterface;
 }
