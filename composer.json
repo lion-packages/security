@@ -20,8 +20,9 @@
         "vlucas/valitron": "^1.4"
     },
     "require-dev": {
-        "lion/test": "^1.4",
-        "phpunit/phpunit": "^10.4",
-        "guzzlehttp/guzzle": "^7.8"
+        "guzzlehttp/guzzle": "^7.8",
+        "lion/test": "^2.0",
+        "phpunit/phpunit": "^11.1",
+        "robiningelbrecht/phpunit-pretty-print": "^1.3"
     }
 }

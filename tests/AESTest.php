@@ -9,6 +9,7 @@ use Lion\Security\Interfaces\ConfigInterface;
 use Lion\Security\Interfaces\EncryptionInterface;
 use Lion\Security\Interfaces\ObjectInterface;
 use Lion\Test\Test;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
 use stdClass;
 use Tests\Providers\AESEncryptionMethodProvider;
@@ -27,10 +28,8 @@ class AESTest extends Test
         $this->initReflection($this->aes);
     }
 
-    /**
-     * @dataProvider AESEncryptionMethodProvider
-     */
-    public function testConfig(string $method): void
+    #[DataProvider('AESEncryptionMethodProvider')]
+    public function testConfig(string $method, int $bits): void
     {
         $config = $this->aes->create($method)->get();
 
@@ -38,7 +37,7 @@ class AESTest extends Test
             AES::class,
             ConfigInterface::class,
             EncryptionInterface::class,
-            ObjectInterface::class
+            ObjectInterface::class,
         ]);
 
         $this->assertSame($config, $this->getPrivateProperty('config'));
@@ -47,16 +46,15 @@ class AESTest extends Test
     public function testGet(): void
     {
         $config = $this->aes->create(AES::AES_256_CBC)->get();
+
         $encode = $this->aes->config($config)->encode('user_name', 'Sleon')->get();
 
         $this->assertIsArray($encode);
         $this->assertArrayHasKey('user_name', $encode);
     }
 
-    /**
-     * @dataProvider AESEncryptionMethodProvider
-     */
-    public function testEncode(string $method): void
+    #[DataProvider('AESEncryptionMethodProvider')]
+    public function testEncode(string $method, int $bits): void
     {
         $config = $this->aes->create($method)->get();
 
@@ -78,12 +76,15 @@ class AESTest extends Test
         $config = $this->aes->create(AES::AES_256_CBC)->get();
 
         $key1 = 'key1';
+
         $value1 = 'encoded_value_1';
 
         $key2 = 'key2';
+
         $value2 = 'encoded_value_2';
 
         $encode = $this->aes->config($config)->encode($key1, $value1)->encode($key2, $value2)->get();
+
         $decode = $this->aes->config($config)->decode($encode)->get();
 
         $this->assertArrayHasKey($key1, $decode);
@@ -95,6 +96,7 @@ class AESTest extends Test
     public function testToObject(): void
     {
         $config = $this->aes->create(AES::AES_256_CBC)->get();
+
         $encode = $this->aes->config($config)->encode('user_name', 'Sleon')->toObject()->get();
 
         $this->assertInstanceOf(stdClass::class, $encode);
@@ -109,9 +111,7 @@ class AESTest extends Test
         $this->assertSame([], $this->getPrivateProperty('config'));
     }
 
-    /**
-     * @dataProvider AESEncryptionMethodProvider
-     * */
+    #[DataProvider('AESEncryptionMethodProvider')]
     public function testCipherKeyLength(string $method, int $bits): void
     {
         $lenght = $this->aes->cipherKeyLength($method);
@@ -128,13 +128,12 @@ class AESTest extends Test
         $this->assertFalse($lenght);
     }
 
-    /**
-     * @dataProvider AESEncryptionMethodProvider
-     */
+    #[DataProvider('AESEncryptionMethodProvider')]
     public function testCreate(string $method, int $bits): void
     {
         $config = $this->aes->create($method)->get();
 
+        $this->assertArrayHasKey('passphrase', $config);
         $this->assertArrayHasKey('key', $config);
         $this->assertArrayHasKey('iv', $config);
         $this->assertArrayHasKey('method', $config);
