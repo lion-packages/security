@@ -10,50 +10,55 @@ use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\JWT;
 use Lion\Security\RSA;
 use Lion\Test\Test;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class JWTTest extends Test
 {
-    const JWT_SERVER_URL = 'http://127.0.0.1:8000';
-    const JWT_SERVER_URL_AUD = 'http://127.0.0.1:5173';
-    const JWT_EXP = 3600;
-    const JWT_DEFAULT_MD = 'RS256';
-    const CONFIG_JWT_RSA = [
+    const string JWT_SERVER_URL = 'http://127.0.0.1:8000';
+    const string JWT_SERVER_URL_AUD = 'http://127.0.0.1:5173';
+    const int JWT_EXP = 3600;
+    const string JWT_DEFAULT_MD = 'RS256';
+    const array CONFIG_JWT_RSA = [
         'jwtServerUrl' => self::JWT_SERVER_URL,
         'jwtServerUrlAud' => self::JWT_SERVER_URL_AUD,
         'jwtExp' => self::JWT_EXP,
         'jwtDefaultMD' => self::JWT_DEFAULT_MD
     ];
-    const CONFIG_JWT_AES = [
+    const array CONFIG_JWT_AES = [
         'jwtServerUrl' => self::JWT_SERVER_URL,
         'jwtServerUrlAud' => self::JWT_SERVER_URL_AUD,
         'jwtExp' => self::JWT_EXP,
         'jwtDefaultMD' => 'HS256'
     ];
-    const URL_PATH = './storage/keys/';
-    const RSA_CONFIG = '/etc/ssl/openssl.cnf';
-    const RSA_PRIVATE_KEY_BITS = 2048;
-    const RSA_DEFAULT_MD = 'sha256';
-    const CONFIG_RSA = [
+    const string URL_PATH = './storage/keys/';
+    const string RSA_CONFIG = '/etc/ssl/openssl.cnf';
+    const int RSA_PRIVATE_KEY_BITS = 2048;
+    const string RSA_DEFAULT_MD = 'sha256';
+    const array CONFIG_RSA = [
         'urlPath' => self::URL_PATH,
         'rsaConfig' => self::RSA_CONFIG,
         'rsaPrivateKeyBits' => self::RSA_PRIVATE_KEY_BITS,
         'rsaDefaultMd' => self::RSA_DEFAULT_MD
     ];
-    const KEY = '0123456789sleon4';
-    const IV = 'sleon40123456789';
-    const CONFIG_AES = ['key' => self::KEY, 'iv' => self::IV, 'method' => AES::AES_256_CBC];
+    const string KEY = '0123456789sleon4';
+    const string IV = 'sleon40123456789';
+    const array CONFIG_AES = [
+        'key' => self::KEY,
+        'iv' => self::IV,
+        'method' => AES::AES_256_CBC
+    ];
 
     private JWT $jwt;
-    private AES $aes;
     private RSA $rsa;
 
     protected function setUp(): void
     {
         $this->rsa = new RSA();
-        $this->aes = new AES();
+
         $this->jwt = new JWT();
 
         $this->initReflection($this->jwt);
+
         $this->createDirectory(self::URL_PATH);
     }
 
@@ -66,10 +71,10 @@ class JWTTest extends Test
     {
         $this->jwt->config(self::CONFIG_JWT_RSA);
 
-        $this->assertEquals(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
-        $this->assertEquals(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
-        $this->assertEquals(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
-        $this->assertEquals(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
+        $this->assertSame(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
+        $this->assertSame(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
+        $this->assertSame(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
+        $this->assertSame(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
     }
 
     public function testConfigWithMissingJwtServerUrl(): void
@@ -80,10 +85,10 @@ class JWTTest extends Test
             'jwtDefaultMD' => self::JWT_DEFAULT_MD
         ]);
 
-        $this->assertEquals(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
-        $this->assertEquals(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
-        $this->assertEquals(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
-        $this->assertEquals(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
+        $this->assertSame(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
+        $this->assertSame(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
+        $this->assertSame(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
+        $this->assertSame(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
     }
 
     public function testConfigWithMissingJwtServerUrlAud(): void
@@ -94,10 +99,10 @@ class JWTTest extends Test
             'jwtDefaultMD' => self::JWT_DEFAULT_MD
         ]);
 
-        $this->assertEquals(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
-        $this->assertEquals(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
-        $this->assertEquals(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
-        $this->assertEquals(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
+        $this->assertSame(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
+        $this->assertSame(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
+        $this->assertSame(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
+        $this->assertSame(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
     }
 
     public function testConfigWithMissingJwtExp(): void
@@ -108,10 +113,10 @@ class JWTTest extends Test
             'jwtDefaultMD' => self::JWT_DEFAULT_MD
         ]);
 
-        $this->assertEquals(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
-        $this->assertEquals(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
-        $this->assertEquals(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
-        $this->assertEquals(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
+        $this->assertSame(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
+        $this->assertSame(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
+        $this->assertSame(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
+        $this->assertSame(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
     }
 
     public function testConfigWithMissingJwtDefaultMD(): void
@@ -122,10 +127,10 @@ class JWTTest extends Test
             'jwtExp' => self::JWT_EXP
         ]);
 
-        $this->assertEquals(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
-        $this->assertEquals(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
-        $this->assertEquals(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
-        $this->assertEquals(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
+        $this->assertSame(self::JWT_SERVER_URL, $this->getPrivateProperty('jwtServerUrl'));
+        $this->assertSame(self::JWT_SERVER_URL_AUD, $this->getPrivateProperty('jwtServerUrlAud'));
+        $this->assertSame(self::JWT_EXP, $this->getPrivateProperty('jwtExp'));
+        $this->assertSame(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
     }
 
     public function testEncodeWithRSA()
@@ -181,12 +186,11 @@ class JWTTest extends Test
         $this->jwt->config([])->decode(null)->get();
     }
 
-    /**
-     * @dataProvider nullJwtDataProvider
-     * */
+    #[DataProvider('nullJwtDataProvider')]
     public function testDecodeWithNullJwt(?string $value): void
     {
         $publicKey = $this->rsa->config(self::CONFIG_RSA)->create()->getPublicKey();
+
         $decode = $this->jwt->config(['publicKey' => $publicKey])->decode($value)->get();
 
         $this->assertIsObject($decode);
@@ -233,18 +237,27 @@ class JWTTest extends Test
     {
         $this->rsa->config(self::CONFIG_RSA)->create();
 
-        $jwt = $this->jwt->config(['privateKey' => $this->rsa->getPrivateKey()])->encode(['key' => 'value'], 3600, 16)->get();
+        $jwt = $this->jwt
+            ->config([
+                'privateKey' => $this->rsa->getPrivateKey(),
+            ])
+            ->encode(['key' => 'value'], 3600, 16)
+            ->get();
 
         $this->assertIsString($jwt);
 
         $getJwt = json_decode(
             (new Client())
-                ->get(self::JWT_SERVER_URL, ['headers' => ['Authorization' => "Bearer {$jwt}"]])
+                ->get(self::JWT_SERVER_URL, [
+                    'headers' => [
+                        'Authorization' => "Bearer {$jwt}"
+                    ]
+                ])
                 ->getBody()
                 ->getContents()
         );
 
-        $this->assertEquals($jwt, $getJwt);
+        $this->assertSame($jwt, $getJwt);
 
         $decode = $this->jwt->config(['publicKey' => $this->rsa->getPublicKey()])->decode($getJwt)->get();
 
@@ -266,6 +279,7 @@ class JWTTest extends Test
     public function testGet(): void
     {
         $privateKey = $this->rsa->config(self::CONFIG_RSA)->create()->getPrivateKey();
+
         $jwt = $this->jwt->config(['privateKey' => $privateKey])->encode(['key' => 'value'], 3600, 16)->get();
 
         $this->assertIsString($jwt);

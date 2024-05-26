@@ -158,10 +158,8 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
      */
     public function create(string $method): AES
     {
-        $cipherKey = $this->cipherKeyLength($method);
-
         $this->values = [
-            'key' => bin2hex(openssl_random_pseudo_bytes($cipherKey)),
+            'key' => bin2hex(openssl_random_pseudo_bytes($this->cipherKeyLength($method))),
             'iv' => bin2hex(openssl_random_pseudo_bytes(16)),
             'method' => $method
         ];

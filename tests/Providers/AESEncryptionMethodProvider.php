@@ -13,8 +13,8 @@ trait AESEncryptionMethodProvider
         return [
             [
                 'method' => AES::AES_256_CBC,
-                'bits' => 32
-            ]
+                'bits' => 32,
+            ],
         ];
     }
 }
