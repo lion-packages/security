@@ -23,6 +23,7 @@ interface ConfigInterface
      *
      * AES:
      *
+     * * passphrase
      * * key
      * * iv
      * * method
@@ -33,6 +34,8 @@ interface ConfigInterface
      * * jwtServerUrlAud
      * * jwtExp
      * * jwtDefaultMD
+     * * privateKey
+     * * publicKey
      *
      * @param array $config [Configuration data list]
      *

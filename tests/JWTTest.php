@@ -14,8 +14,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class JWTTest extends Test
 {
-    const string JWT_SERVER_URL = 'http://127.0.0.1:8000';
-    const string JWT_SERVER_URL_AUD = 'http://127.0.0.1:5173';
+    const string JWT_SERVER_URL = 'http://localhost:8000';
+    const string JWT_SERVER_URL_AUD = 'http://localhost:5173';
     const int JWT_EXP = 3600;
     const string JWT_DEFAULT_MD = 'RS256';
     const array CONFIG_JWT_RSA = [
@@ -159,7 +159,7 @@ class JWTTest extends Test
         $this->jwt->config([])->encode(['key' => 'value'], 3600, 16)->get();
     }
 
-    public function testDecodeWithValidJWT(): void
+    public function testDecodeWithRSAValidJWT(): void
     {
         $this->rsa->config(self::CONFIG_RSA)->create();
 

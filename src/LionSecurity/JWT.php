@@ -55,14 +55,14 @@ class JWT implements ConfigInterface
      *
      * @var string $jwtServerUrl
      */
-    private string $jwtServerUrl = 'http://127.0.0.1:8000';
+    private string $jwtServerUrl = 'http://localhost:8000';
 
     /**
      * [Defines the url of the site that uses the JWT]
      *
      * @var string $jwtServerUrlAud
      */
-    private string $jwtServerUrlAud = 'http://127.0.0.1:5173';
+    private string $jwtServerUrlAud = 'http://localhost:5173';
 
     /**
      * [Stores the lifetime of the JWT]
@@ -127,9 +127,9 @@ class JWT implements ConfigInterface
 
         $this->configValues = [];
 
-        $this->jwtServerUrl = 'http://127.0.0.1:8000';
+        $this->jwtServerUrl = 'http://localhost:8000';
 
-        $this->jwtServerUrlAud = 'http://127.0.0.1:5173';
+        $this->jwtServerUrlAud = 'http://localhost:5173';
 
         $this->jwtExp = 3600;
 
@@ -142,23 +142,48 @@ class JWT implements ConfigInterface
      * @param Closure $executeFunction [Execute a function using exceptions]
      *
      * @return void
+     *
+     * @throws InvalidArgumentException
+     * @throws DomainException
+     * @throws SignatureInvalidException
+     * @throws BeforeValidException
+     * @throws ExpiredException
+     * @throws UnexpectedValueException
      */
     private function execute(Closure $executeFunction): void
     {
         try {
             $this->values = $executeFunction();
         } catch (InvalidArgumentException $e) {
-            $this->values = (object) ['status' => 'error', 'message' => $e->getMessage()];
+            $this->values = (object) [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         } catch (DomainException $e) {
-            $this->values = (object) ['status' => 'error', 'message' => $e->getMessage()];
+            $this->values = (object) [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         } catch (SignatureInvalidException $e) {
-            $this->values = (object) ['status' => 'error', 'message' => $e->getMessage()];
+            $this->values = (object) [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         } catch (BeforeValidException $e) {
-            $this->values = (object) ['status' => 'error', 'message' => $e->getMessage()];
+            $this->values = (object) [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         } catch (ExpiredException $e) {
-            $this->values = (object) ['status' => 'error', 'message' => $e->getMessage()];
+            $this->values = (object) [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         } catch (UnexpectedValueException $e) {
-            $this->values = (object) ['status' => 'error', 'message' => $e->getMessage()];
+            $this->values = (object) [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         }
     }
 
@@ -187,7 +212,7 @@ class JWT implements ConfigInterface
                 'iat' => $now,
                 'nbf' => $now,
                 'exp' => $now + (0 === $time ? ((int) $this->jwtExp) : $time),
-                'data' => $data
+                'data' => $data,
             ];
 
             return FBJWT::encode($config, $this->configValues['privateKey'], $this->jwtDefaultMD);
@@ -300,10 +325,8 @@ class JWT implements ConfigInterface
      */
     public function getJWT(): string|bool
     {
-        $headers = $_SERVER;
-
-        if (isset($headers['HTTP_AUTHORIZATION'])) {
-            if (preg_match('/Bearer\s(\S+)/', $headers['HTTP_AUTHORIZATION'], $matches)) {
+        if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            if (preg_match('/Bearer\s(\S+)/', $_SERVER['HTTP_AUTHORIZATION'], $matches)) {
                 return $matches[1];
             }
         }

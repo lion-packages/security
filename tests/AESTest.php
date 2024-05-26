@@ -129,6 +129,7 @@ class AESTest extends Test
     {
         $config = $this->aes->create($method)->get();
 
+        $this->assertArrayHasKey('passphrase', $config);
         $this->assertArrayHasKey('key', $config);
         $this->assertArrayHasKey('iv', $config);
         $this->assertArrayHasKey('method', $config);
