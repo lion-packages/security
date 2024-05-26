@@ -18,6 +18,7 @@ class JWTTest extends Test
     const string JWT_SERVER_URL_AUD = 'http://localhost:5173';
     const int JWT_EXP = 3600;
     const string JWT_DEFAULT_MD = 'RS256';
+    const string JWT_DEFAULT_MD_AES = 'HS256';
     const array CONFIG_JWT_RSA = [
         'jwtServerUrl' => self::JWT_SERVER_URL,
         'jwtServerUrlAud' => self::JWT_SERVER_URL_AUD,
@@ -50,12 +51,15 @@ class JWTTest extends Test
 
     private JWT $jwt;
     private RSA $rsa;
+    private AES $aes;
 
     protected function setUp(): void
     {
         $this->rsa = new RSA();
 
         $this->jwt = new JWT();
+
+        $this->aes = new AES();
 
         $this->initReflection($this->jwt);
 
@@ -145,7 +149,7 @@ class JWTTest extends Test
     public function testEncodeWithAES()
     {
         $encode = $this->jwt
-            ->config(['privateKey' => self::IV, ...self::CONFIG_JWT_AES])
+            ->config(['privateKey' => self::KEY, ...self::CONFIG_JWT_AES])
             ->encode(['key' => 'value'], 3600, 16)
             ->get();
 
@@ -165,13 +169,54 @@ class JWTTest extends Test
 
         $privateKey = $this->rsa->getPrivateKey();
 
-        $jwt = $this->jwt->config(['privateKey' => $privateKey])->encode(['key' => 'value'], 3600, 16)->get();
+        $jwt = $this->jwt
+            ->config([
+                'privateKey' => $privateKey
+            ])->encode([
+                'key' => 'value'
+            ], 3600)
+            ->get();
 
         $this->assertIsString($jwt);
 
         $publicKey = $this->rsa->getPublicKey();
 
-        $decode = $this->jwt->config(['publicKey' => $publicKey])->decode($jwt)->get();
+        $decode = $this->jwt
+            ->config([
+                'publicKey' => $publicKey,
+            ])
+            ->decode($jwt)
+            ->get();
+
+        $this->assertIsObject($decode);
+        $this->assertObjectHasProperty('data', $decode);
+        $this->assertObjectHasProperty('key', $decode->data);
+        $this->assertSame('value', $decode->data->key);
+    }
+
+    public function testDecodeWithAESValidJWT(): void
+    {
+        $config = $this->aes->create(AES::AES_256_CBC)->toObject()->get();
+
+        $jwt = $this->jwt
+            ->config([
+                'jwtDefaultMD' => self::JWT_DEFAULT_MD_AES,
+                'privateKey' => $config->key,
+            ])
+            ->encode([
+                'key' => 'value',
+            ], 3600)
+            ->get();
+
+        $this->assertIsString($jwt);
+
+        $decode = $this->jwt
+            ->config([
+                'jwtDefaultMD' => self::JWT_DEFAULT_MD_AES,
+                'publicKey' => $config->key,
+            ])
+            ->decode($jwt)
+            ->get();
 
         $this->assertIsObject($decode);
         $this->assertObjectHasProperty('data', $decode);

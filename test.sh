@@ -18,7 +18,7 @@ echo -e "\n\033[0;31m>> --------------------------------------------------------
 
 
 echo -e "\033[0;36m\t>>  All-Test \033[0m"
-php vendor/bin/phpunit
+php vendor/bin/phpunit --testsuite All-Test --coverage-clover tests/build/logs/clover.xml --coverage-html tests/build/coverage
 echo -e "\n\033[0;31m>> -------------------------------------------------------------------------------------- << \n\033[0m";
 
 

@@ -76,12 +76,15 @@ class AESTest extends Test
         $config = $this->aes->create(AES::AES_256_CBC)->get();
 
         $key1 = 'key1';
+
         $value1 = 'encoded_value_1';
 
         $key2 = 'key2';
+
         $value2 = 'encoded_value_2';
 
         $encode = $this->aes->config($config)->encode($key1, $value1)->encode($key2, $value2)->get();
+
         $decode = $this->aes->config($config)->decode($encode)->get();
 
         $this->assertArrayHasKey($key1, $decode);
@@ -93,6 +96,7 @@ class AESTest extends Test
     public function testToObject(): void
     {
         $config = $this->aes->create(AES::AES_256_CBC)->get();
+
         $encode = $this->aes->config($config)->encode('user_name', 'Sleon')->toObject()->get();
 
         $this->assertInstanceOf(stdClass::class, $encode);
