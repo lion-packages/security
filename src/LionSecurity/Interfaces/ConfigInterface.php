@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lion\Security\Interfaces;
 
+use OpenSSLAsymmetricKey;
+
 /**
  * Represents the implementation for configuring encryption processes
  *
@@ -37,16 +39,24 @@ interface ConfigInterface
      * * privateKey
      * * publicKey
      *
-     * @param array $config [Configuration data list]
+     * @param array{
+     *     urlPath?: string,
+     *     rsaConfig?: string,
+     *     rsaPrivateKeyBits?: int,
+     *     rsaDefaultMd?: string,
+     *     passphrase?: string,
+     *     key?: string,
+     *     iv?: string,
+     *     method?: string,
+     *     jwtServerUrl?: string,
+     *     jwtServerUrlAud?: string,
+     *     jwtExp?: int,
+     *     jwtDefaultMD?: string,
+     *     privateKey?: OpenSSLAsymmetricKey|string,
+     *     publicKey?: OpenSSLAsymmetricKey|string
+     * } $config [Configuration data list]
      *
      * @return ConfigInterface
      */
     public function config(array $config): ConfigInterface;
-
-    /**
-     * Returns the current array/object with the generated data
-     *
-     * @return array|object|string
-     */
-    public function get(): array|object|string;
 }

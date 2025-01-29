@@ -4,30 +4,36 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\RSA;
 use Lion\Test\Test;
 use OpenSSLAsymmetricKey;
+use PHPUnit\Framework\Attributes\Test as Testing;
+use ReflectionException;
 use stdClass;
 
 class RSATest extends Test
 {
-    const URL_PATH_EXAMPLE = './storage/example/';
-    const URL_PATH_CUSTOM = './storage/custom-keys/';
-    const URL_PATH = './storage/keys/';
-    const RSA_CONFIG = '/etc/ssl/openssl.cnf';
-    const RSA_PRIVATE_KEY_BITS = 2048;
-    const RSA_DEFAULT_MD = 'sha256';
-    const CONFIG = [
+    private const string URL_PATH_EXAMPLE = './storage/example/';
+    private const string URL_PATH_CUSTOM = './storage/custom-keys/';
+    private const string URL_PATH = './storage/keys/';
+    private const string RSA_CONFIG = '/etc/ssl/openssl.cnf';
+    private const int RSA_PRIVATE_KEY_BITS = 2048;
+    private const string RSA_DEFAULT_MD = 'sha256';
+    private const array CONFIG = [
         'urlPath' => self::URL_PATH,
         'rsaConfig' => self::RSA_CONFIG,
         'rsaPrivateKeyBits' => self::RSA_PRIVATE_KEY_BITS,
-        'rsaDefaultMd' => self::RSA_DEFAULT_MD
+        'rsaDefaultMd' => self::RSA_DEFAULT_MD,
     ];
-    const KEY_NAME = 'user_name';
-    const VALUE_NAME = 'Sleon';
+    private const string KEY_NAME = 'user_name';
+    private const string VALUE_NAME = 'Sleon';
 
     private RSA $rsa;
 
+    /**
+     * @throws ReflectionException
+     */
     protected function setUp(): void
     {
         $this->rsa = new RSA();
@@ -42,7 +48,11 @@ class RSATest extends Test
         $this->rmdirRecursively('./storage/');
     }
 
-    public function testConfig(): void
+    /**
+     * @throws ReflectionException
+     */
+    #[Testing]
+    public function config(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->config(self::CONFIG));
         $this->assertEquals(self::URL_PATH, $this->getPrivateProperty('urlPath'));
@@ -51,7 +61,11 @@ class RSATest extends Test
         $this->assertEquals(self::RSA_DEFAULT_MD, $this->getPrivateProperty('rsaDefaultMd'));
     }
 
-    public function testConfigWithMissingUrlPath(): void
+    /**
+     * @throws ReflectionException
+     */
+    #[Testing]
+    public function configWithMissingUrlPath(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->config([
             'rsaConfig' => self::RSA_CONFIG,
@@ -65,7 +79,11 @@ class RSATest extends Test
         $this->assertEquals(self::RSA_DEFAULT_MD, $this->getPrivateProperty('rsaDefaultMd'));
     }
 
-    public function testConfigWithMissingRsaConfig(): void
+    /**
+     * @throws ReflectionException
+     */
+    #[Testing]
+    public function configWithMissingRsaConfig(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->config([
             'urlPath' => self::URL_PATH,
@@ -79,7 +97,11 @@ class RSATest extends Test
         $this->assertEquals(self::RSA_DEFAULT_MD, $this->getPrivateProperty('rsaDefaultMd'));
     }
 
-    public function testConfigWithMissingRsaPrivateKeyBits(): void
+    /**
+     * @throws ReflectionException
+     */
+    #[Testing]
+    public function configWithMissingRsaPrivateKeyBits(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->config([
             'urlPath' => self::URL_PATH,
@@ -93,7 +115,11 @@ class RSATest extends Test
         $this->assertEquals(self::RSA_DEFAULT_MD, $this->getPrivateProperty('rsaDefaultMd'));
     }
 
-    public function testConfigWithMissingRsaDefaultMd(): void
+    /**
+     * @throws ReflectionException
+     */
+    #[Testing]
+    public function configWithMissingRsaDefaultMd(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->config([
             'urlPath' => self::URL_PATH,
@@ -107,28 +133,32 @@ class RSATest extends Test
         $this->assertEquals(self::RSA_DEFAULT_MD, $this->getPrivateProperty('rsaDefaultMd'));
     }
 
-    public function testCreate(): void
+    #[Testing]
+    public function create(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->config(self::CONFIG)->create());
         $this->assertFileExists("{$this->rsa->getUrlPath()}public.key");
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
     }
 
-    public function testCreateWithCustomPath(): void
+    #[Testing]
+    public function createWithCustomPath(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->config(['urlPath' => self::URL_PATH_CUSTOM])->create());
         $this->assertFileExists("{$this->rsa->getUrlPath()}public.key");
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
     }
 
-    public function testCreateWithCustomRsaPrivateKeyBits(): void
+    #[Testing]
+    public function createWithCustomRsaPrivateKeyBits(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->config(['rsaPrivateKeyBits' => 4096])->create());
         $this->assertFileExists("{$this->rsa->getUrlPath()}public.key");
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
     }
 
-    public function testCreateWithCustomRsaDefaultMd(): void
+    #[Testing]
+    public function createWithCustomRsaDefaultMd(): void
     {
 
         $this->assertInstanceOf(RSA::class, $this->rsa->config(['rsaDefaultMd' => 'sha512'])->create());
@@ -136,15 +166,27 @@ class RSATest extends Test
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
     }
 
-    public function testEncode(): void
+    /**
+     * @throws InvalidConfigException
+     */
+    #[Testing]
+    public function encode(): void
     {
-        $encode = $this->rsa->config(self::CONFIG)->create()->encode(self::KEY_NAME, self::VALUE_NAME)->get();
+        $encode = $this->rsa
+            ->config(self::CONFIG)
+            ->create()
+            ->encode(self::KEY_NAME, self::VALUE_NAME)
+            ->get();
 
         $this->assertIsArray($encode);
         $this->assertArrayHasKey(self::KEY_NAME, $encode);
     }
 
-    public function testEncodeToObject(): void
+    /**
+     * @throws InvalidConfigException
+     */
+    #[Testing]
+    public function encodeToObject(): void
     {
         $encode = $this->rsa
             ->config(self::CONFIG)
@@ -157,73 +199,126 @@ class RSATest extends Test
         $this->assertObjectHasProperty(self::KEY_NAME, $encode);
     }
 
-    public function testDecode(): void
+    /**
+     * @throws InvalidConfigException
+     */
+    #[Testing]
+    public function decode(): void
     {
-        $encode = $this->rsa->config(self::CONFIG)->create()->encode(self::KEY_NAME, self::VALUE_NAME)->get();
-        $decode = $this->rsa->config(self::CONFIG)->decode($encode)->get();
+        /** @var array<string, string> $encode */
+        $encode = $this->rsa
+            ->config(self::CONFIG)
+            ->create()
+            ->encode(self::KEY_NAME, self::VALUE_NAME)
+            ->get();
+
+        $decode = $this->rsa
+            ->config(self::CONFIG)
+            ->decode($encode)
+            ->get();
 
         $this->assertIsArray($decode);
         $this->assertArrayHasKey(self::KEY_NAME, $decode);
         $this->assertSame(self::VALUE_NAME, $decode[self::KEY_NAME]);
     }
 
-    public function testDecodeToObject(): void
+    /**
+     * @throws InvalidConfigException
+     */
+    #[Testing]
+    public function decodeToObject(): void
     {
-        $encode = $this->rsa->config(self::CONFIG)->create()->encode(self::KEY_NAME, self::VALUE_NAME)->get();
-        $decode = $this->rsa->config(self::CONFIG)->decode($encode)->toObject()->get();
+        /** @var array<string, string> $encode */
+        $encode = $this->rsa
+            ->config(self::CONFIG)
+            ->create()
+            ->encode(self::KEY_NAME, self::VALUE_NAME)
+            ->get();
+
+        $decode = $this->rsa
+            ->config(self::CONFIG)
+            ->decode($encode)
+            ->toObject()
+            ->get();
 
         $this->assertIsObject($decode);
         $this->assertObjectHasProperty(self::KEY_NAME, $decode);
         $this->assertSame(self::VALUE_NAME, $decode->user_name);
     }
 
-    public function testGetPath(): void
+    #[Testing]
+    public function getPath(): void
     {
         $this->assertSame(self::URL_PATH, $this->rsa->config(['urlPath' => self::URL_PATH])->getUrlPath());
     }
 
-    public function testSetUrlPath(): void
+    #[Testing]
+    public function setUrlPath(): void
     {
         $this->assertInstanceOf(RSA::class, $this->rsa->setUrlPath(self::URL_PATH_EXAMPLE));
         $this->assertSame(self::URL_PATH_EXAMPLE, $this->rsa->getUrlPath());
     }
 
-    public function testGetPublicKey(): void
+    #[Testing]
+    public function getPublicKey(): void
     {
-        $publicKey = $this->rsa->config(self::CONFIG)->create()->getPublicKey();
+        $publicKey = $this->rsa
+            ->config(self::CONFIG)
+            ->create()
+            ->getPublicKey();
 
         $this->assertInstanceOf(OpenSSLAsymmetricKey::class, $publicKey);
     }
 
-    public function testGetPrivateKey(): void
+    #[Testing]
+    public function getPrivateKey(): void
     {
-        $privateKey = $this->rsa->config(self::CONFIG)->create()->getPrivateKey();
+        $privateKey = $this->rsa
+            ->config(self::CONFIG)
+            ->create()
+            ->getPrivateKey();
 
         $this->assertInstanceOf(OpenSSLAsymmetricKey::class, $privateKey);
     }
 
-    public function testRsaConfig(): void
+    /**
+     * @throws ReflectionException
+     */
+    #[Testing]
+    public function rsaConfig(): void
     {
         $this->rsa->config(self::CONFIG);
 
         $this->assertSame(self::RSA_CONFIG, $this->getPrivateProperty('rsaConfig'));
     }
 
-    public function testRsaPrivateKeyBits(): void
+    /**
+     * @throws ReflectionException
+     */
+    #[Testing]
+    public function rsaPrivateKeyBits(): void
     {
         $this->rsa->config(self::CONFIG);
 
         $this->assertSame(self::RSA_PRIVATE_KEY_BITS, $this->getPrivateProperty('rsaPrivateKeyBits'));
     }
 
-    public function testRsaDefaultMd(): void
+    /**
+     * @throws ReflectionException
+     */
+    #[Testing]
+    public function rsaDefaultMd(): void
     {
         $this->rsa->config(self::CONFIG);
 
         $this->assertSame(self::RSA_DEFAULT_MD, $this->getPrivateProperty('rsaDefaultMd'));
     }
 
-    public function testToObject(): void
+    /**
+     * @throws InvalidConfigException
+     */
+    #[Testing]
+    public function toObject(): void
     {
         $encode = $this->rsa
             ->config(self::CONFIG)
@@ -236,9 +331,17 @@ class RSATest extends Test
         $this->assertObjectHasProperty(self::KEY_NAME, $encode);
     }
 
-    public function testGet(): void
+    /**
+     * @throws InvalidConfigException
+     */
+    #[Testing]
+    public function get(): void
     {
-        $encode = $this->rsa->config(self::CONFIG)->create()->encode(self::KEY_NAME, self::VALUE_NAME)->get();
+        $encode = $this->rsa
+            ->config(self::CONFIG)
+            ->create()
+            ->encode(self::KEY_NAME, self::VALUE_NAME)
+            ->get();
 
         $this->assertIsArray($encode);
         $this->assertArrayHasKey(self::KEY_NAME, $encode);
