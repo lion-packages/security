@@ -1,9 +1,7 @@
 /.idea/
 /vendor/
 /storage/
+/tests/build/
 .env
 .phpunit.result.cache
-/tests/build/coverage/*
-!/tests/build/coverage/.gitignore
-/tests/build/logs/*
-!/tests/build/logs/.gitignore
+composer.lock
