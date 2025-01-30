@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 namespace Lion\Security;
 
+use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\Interfaces\ConfigInterface;
 use Lion\Security\Interfaces\EncryptionInterface;
 use Lion\Security\Interfaces\ObjectInterface;
 use OpenSSLAsymmetricKey;
+use RuntimeException;
+use stdClass;
 
 /**
  * Allows you to generate the required configuration for public and private
  * keys, has methods that allow you to encrypt and decrypt data with RSA
  *
- * @property null|OpenSSLAsymmetricKey $publicKey [Represents the public key
- * object]
- * @property null|OpenSSLAsymmetricKey $privateKey [Represents the private key
- * object]
- * @property array|object $values [Property that stores the values of any type
- * of execution being performed 'encode, decode']
+ * @property OpenSSLAsymmetricKey|false|null $publicKey [Represents the public
+ * key object]
+ * @property OpenSSLAsymmetricKey|false|null $privateKey [Represents the private
+ * key object]
+ * @property array<string, string>|stdClass $values [Property that stores the
+ * values of any type of execution being performed 'encode, decode']
  * @property string $urlPath [Defines the path where the public and private keys
  * are stored]
  * @property string $rsaConfig [Defines the path where the openssl.cnf file is
@@ -34,24 +37,24 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * [Represents the public key object]
      *
-     * @var null|OpenSSLAsymmetricKey $publicKey
+     * @var OpenSSLAsymmetricKey|false|null $publicKey
      */
-    private ?OpenSSLAsymmetricKey $publicKey = null;
+    private OpenSSLAsymmetricKey|false|null $publicKey = null;
 
     /**
      * [Represents the private key object]
      *
-     * @var null|OpenSSLAsymmetricKey $privateKey
+     * @var OpenSSLAsymmetricKey|false|null $privateKey
      */
-    private ?OpenSSLAsymmetricKey $privateKey = null;
+    private OpenSSLAsymmetricKey|false|null $privateKey = null;
 
     /**
      * [Property that stores the values of any type of execution being
      * performed 'encode, decode']
      *
-     * @var array|object $values
+     * @var array<string, string>|stdClass $values
      */
-    private array|object $values = [];
+    private array|stdClass $values = [];
 
     /**
      * [Defines the path where the public and private keys are stored]
@@ -82,8 +85,8 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     private string $rsaDefaultMd = 'sha256';
 
     /**
-     * {@inheritdoc}
-     * */
+     * {@inheritDoc}
+     */
     public function config(array $config): RSA
     {
         if (!empty($config['urlPath']) && '' !== $this->urlPath) {
@@ -94,7 +97,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
             $this->rsaConfig = $config['rsaConfig'];
         }
 
-        if (!empty($config['rsaPrivateKeyBits']) && '' !== $this->rsaPrivateKeyBits) {
+        if (!empty($config['rsaPrivateKeyBits'])) {
             $this->rsaPrivateKeyBits = $config['rsaPrivateKeyBits'];
         }
 
@@ -106,9 +109,11 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     }
 
     /**
-     * {@inheritdoc}
-     * */
-    public function get(): array|object
+     * Returns the current array/object with the generated data
+     *
+     * @return array<string, string>|stdClass
+     */
+    public function get(): array|stdClass
     {
         $values = $this->values;
 
@@ -118,41 +123,70 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     }
 
     /**
-     * {@inheritdoc}
-     * */
+     * {@inheritDoc}
+     *
+     * @throws InvalidConfigException [If the public key is null]
+     * @throws RuntimeException [If the encrypted data is incorrect]
+     */
     public function encode(string $key, string $value): RSA
     {
         $this->init();
 
-        openssl_public_encrypt($value, $data, $this->publicKey);
+        if (null === $this->publicKey) {
+            throw new InvalidConfigException('Public key cannot be null', 500);
+        }
 
-        $this->values[$key] = $data;
+        if ($this->publicKey instanceof OpenSSLAsymmetricKey) {
+            openssl_public_encrypt($value, $data, $this->publicKey);
 
-        return $this;
-    }
+            if (is_array($this->values) && is_string($data)) {
+                $this->values[$key] = $data;
+            }
 
-    /**
-     * {@inheritdoc}
-     * */
-    public function decode(array $rows): RSA
-    {
-        $this->init();
-
-        foreach ($rows as $key => $row) {
-            openssl_private_decrypt($row, $data, $this->privateKey);
-
-            $this->values[$key] = $data;
+            if ($this->values instanceof stdClass && is_string($data)) {
+                $this->values->{$key} = $data;
+            }
         }
 
         return $this;
     }
 
     /**
-     * {@inheritdoc}
-     * */
+     * {@inheritDoc}
+     *
+     * @throws InvalidConfigException [If the private key is null]
+     */
+    public function decode(array $rows): RSA
+    {
+        $this->init();
+
+        if (null === $this->privateKey) {
+            throw new InvalidConfigException('The private key cannot be null', 500);
+        }
+
+        foreach ($rows as $key => $row) {
+            if ($this->privateKey instanceof OpenSSLAsymmetricKey) {
+                openssl_private_decrypt($row, $data, $this->privateKey);
+
+                if (is_array($this->values) && is_string($data)) {
+                    $this->values[$key] = $data;
+                }
+
+                if ($this->values instanceof stdClass && is_string($data)) {
+                    $this->values->{$key} = $data;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function toObject(): RSA
     {
-        if (gettype($this->values) === 'array') {
+        if (is_array($this->values)) {
             $this->values = (object) $this->values;
         }
 
@@ -167,11 +201,17 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     public function init(): RSA
     {
         if (null === $this->publicKey) {
-            $this->publicKey = openssl_pkey_get_public(file_get_contents($this->urlPath . 'public.key'));
+            /** @var string $publicKey */
+            $publicKey = file_get_contents($this->urlPath . 'public.key');
+
+            $this->publicKey = openssl_pkey_get_public($publicKey);
         }
 
         if (null === $this->privateKey) {
-            $this->privateKey = openssl_pkey_get_private(file_get_contents($this->urlPath . 'private.key'));
+            /** @var string $privateKey */
+            $privateKey = file_get_contents($this->urlPath . 'private.key');
+
+            $this->privateKey = openssl_pkey_get_private($privateKey);
         }
 
         return $this;
@@ -200,8 +240,8 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      *
      * @param string $urlPath [Defines the url where the key will be saved]
      * @param string $keyValue [Key content]
-     * @param bool $isPublic [Determines if the key is public or private with
-     * a boolean value]
+     * @param bool $isPublic [Determines if the key is public or private with a
+     * boolean value]
      *
      * @return void
      */
@@ -229,15 +269,21 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
 
         $generate = openssl_pkey_new($rsaConfig);
 
-        openssl_pkey_export($generate, $private, null, $rsaConfig);
+        if ($generate instanceof OpenSSLAsymmetricKey) {
+            openssl_pkey_export($generate, $privateKey, null, $rsaConfig);
 
-        $public = openssl_pkey_get_details($generate);
+            $publicKey = openssl_pkey_get_details($generate);
 
-        $this->generateKeys($urlPath, $public['key']);
+            if ($publicKey !== false && isset($publicKey['key']) && is_string($publicKey['key'])) {
+                $this->generateKeys($urlPath, $publicKey['key']);
+            }
 
-        $this->generateKeys($urlPath, $private, false);
+            if (is_string($privateKey)) {
+                $this->generateKeys($urlPath, $privateKey, false);
+            }
 
-        $this->init();
+            $this->init();
+        }
 
         return $this;
     }
@@ -269,9 +315,9 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Returns the current public key
      *
-     * @return null|OpenSSLAsymmetricKey
+     * @return OpenSSLAsymmetricKey|false|null
      */
-    public function getPublicKey(): ?OpenSSLAsymmetricKey
+    public function getPublicKey(): OpenSSLAsymmetricKey|false|null
     {
         return $this->publicKey;
     }
@@ -279,52 +325,10 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     /**
      * Returns the current private key
      *
-     * @return null|OpenSSLAsymmetricKey
-     * */
-    public function getPrivateKey(): ?OpenSSLAsymmetricKey
+     * @return OpenSSLAsymmetricKey|false|null
+     */
+    public function getPrivateKey(): OpenSSLAsymmetricKey|false|null
     {
         return $this->privateKey;
-    }
-
-    /**
-     * Modify the path for the configuration file used by OpenSSL
-     *
-     * @param string $rsaConfig [Defines the path of the openssl.cnf file]
-     *
-     * @return RSA
-     */
-    public function rsaConfig(string $rsaConfig): RSA
-    {
-        $this->rsaConfig = $rsaConfig;
-
-        return $this;
-    }
-
-    /**
-     * Modify by specifying the length of the RSA key
-     *
-     * @param int $rsaPrivateKeyBits [Defines the number of bits]
-     *
-     * @return RSA
-     */
-    public function rsaPrivateKeyBits(int $rsaPrivateKeyBits): RSA
-    {
-        $this->rsaPrivateKeyBits = $rsaPrivateKeyBits;
-
-        return $this;
-    }
-
-    /**
-     * Modify the cryptographic protocol configuration: 'sha256'
-     *
-     * @param string $rsaDefaultMd [Encryption protocol]
-     *
-     * @return RSA
-     */
-    public function rsaDefaultMd(string $rsaDefaultMd): RSA
-    {
-        $this->rsaDefaultMd = $rsaDefaultMd;
-
-        return $this;
     }
 }

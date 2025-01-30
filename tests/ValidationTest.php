@@ -6,6 +6,7 @@ namespace Tests;
 
 use Lion\Security\Validation;
 use Lion\Test\Test;
+use PHPUnit\Framework\Attributes\Test as Testing;
 use Valitron\Validator;
 
 class ValidationTest extends Test
@@ -17,15 +18,16 @@ class ValidationTest extends Test
         $this->validation = new Validation();
     }
 
-    public function testPasswordHash(): void
+    #[Testing]
+    public function passwordHash(): void
     {
         $hashedPassword = $this->validation->passwordHash('my_password');
 
-        $this->assertIsString($hashedPassword);
         $this->assertNotEmpty($hashedPassword);
     }
 
-    public function testValidateSuccess(): void
+    #[Testing]
+    public function validateSuccess(): void
     {
         $result = $this->validation->validate(['field' => 'value'], function (Validator $validator) {
             $validator->rule('required', 'field');
@@ -35,9 +37,10 @@ class ValidationTest extends Test
         $this->assertEquals('validations have been completed', $result->message);
     }
 
-    public function testValidateError(): void
+    #[Testing]
+    public function validateError(): void
     {
-        $result = $this->validation->validate([], function ($validator) {
+        $result = $this->validation->validate([], function (Validator $validator) {
             $validator->rule('required', 'field');
         });
 
@@ -45,11 +48,11 @@ class ValidationTest extends Test
         $this->assertIsArray($result->messages);
     }
 
-    public function testSha256(): void
+    #[Testing]
+    public function sha256(): void
     {
         $hashedValue = $this->validation->sha256('my_value');
 
-        $this->assertIsString($hashedValue);
         $this->assertNotEmpty($hashedValue);
     }
 }

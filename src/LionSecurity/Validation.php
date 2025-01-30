@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lion\Security;
 
 use Closure;
+use stdClass;
 use Valitron\Validator;
 
 /**
@@ -18,7 +19,7 @@ class Validation
      * Creates a password hash
      *
      * @param string $password [The user's password]
-     * @param array $options [An associative array containing options]
+     * @param array<string, mixed> $options [An associative array containing options]
      *
      * @return string
      */
@@ -28,30 +29,38 @@ class Validation
     }
 
     /**
-     * Validate the data sent in an HTTP request with rules using Valitron
+     * Validate the data sent in an HTTP request with rules using Validator
      *
-     * @param array $rows [Rows with data to validate]
+     * @param array<string, mixed> $rows [Rows with data to validate]
      * @param Closure $validateFunction [Function that carries the rules logic
      * defined for validation]
      *
-     * @return object
+     * @return stdClass
      */
-    public function validate(array $rows, Closure $validateFunction): object
+    public function validate(array $rows, Closure $validateFunction): stdClass
     {
         $validator = new Validator($rows);
 
         $validateFunction($validator);
 
         if ($validator->validate()) {
-            return (object) ['status' => 'success', 'message' => 'validations have been completed'];
+            return (object) [
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'validations have been completed',
+            ];
         } else {
-            return (object) ['status' => 'error', 'messages' => $validator->errors()];
+            return (object) [
+                'code' => 500,
+                'status' => 'error',
+                'messages' => $validator->errors(),
+            ];
         }
     }
 
     /**
-     * Generates a cipher with the sha256 algorithm, produces
-     * a 256-bit (32-byte) hash digest
+     * Generates a cipher with the sha256 algorithm, produces a 256-bit
+     * (32-byte) hash digest
      *
      * @param string $value [Value to encrypt]
      *

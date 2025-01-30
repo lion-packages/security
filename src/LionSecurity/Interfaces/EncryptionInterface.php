@@ -24,7 +24,7 @@ interface EncryptionInterface
     /**
      * Decodes the data with the defined settings
      *
-     * @param array $rows [list of decrypted items]
+     * @param array<string, string> $rows [list of decrypted items]
      *
      * @return EncryptionInterface
      */

@@ -8,6 +8,9 @@ use Lion\Security\AES;
 
 trait AESEncryptionMethodProvider
 {
+    /**
+     * @return array<int, array<string, int|string>>
+     */
     public static function AESEncryptionMethodProvider(): array
     {
         return [

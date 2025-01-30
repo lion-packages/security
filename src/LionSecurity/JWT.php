@@ -14,6 +14,7 @@ use Firebase\JWT\JWT as FBJWT;
 use InvalidArgumentException;
 use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\Interfaces\ConfigInterface;
+use OpenSSLAsymmetricKey;
 use stdClass;
 use UnexpectedValueException;
 
@@ -21,10 +22,10 @@ use UnexpectedValueException;
  * Allows you to generate the required configuration for JWT tokens, has methods
  * that allow you to encrypt and decrypt data with JWT
  *
- * @property array|object|string $values [Property that stores the values of any
- * type of execution being performed 'encode, decode']
- * @property array $config [Property that contains the configuration
- * defined for JWT processes]
+ * @property array<string, string>|stdClass|string $values [Property that stores
+ * the values of any type of execution being performed 'encode, decode']
+ * @property array<string, int|string|OpenSSLAsymmetricKey> $config [Property
+ * that contains the configuration defined for JWT processes]
  * @property string $jwtServerUrl [Defines the url of the server that generates
  * the JWT]
  * @property string $jwtServerUrlAud [Defines the url of the site that uses the
@@ -40,14 +41,14 @@ class JWT implements ConfigInterface
      * [Property that stores the values of any type of execution being
      * performed 'encode, decode']
      *
-     * @var array|object|string $values
+     * @var array<string, string>|stdClass|string $values
      */
-    private array|object|string $values = [];
+    private array|stdClass|string $values = [];
 
     /**
      * [Property that contains the configuration defined for JWT processes]
      *
-     * @var array $config
+     * @var array<string, int|string|OpenSSLAsymmetricKey> $config
      */
     private array $config = [];
 
@@ -81,7 +82,7 @@ class JWT implements ConfigInterface
 
     /**
      * {@inheritdoc}
-     * */
+     */
     public function config(array $config): JWT
     {
         if (!empty($config['jwtServerUrl'])) {
@@ -106,9 +107,11 @@ class JWT implements ConfigInterface
     }
 
     /**
-     * {@inheritdoc}
-     * */
-    public function get(): array|object|string
+     * Returns the current array/object with the generated data
+     *
+     * @return array<string, string>|stdClass|string
+     */
+    public function get(): array|stdClass|string
     {
         $values = $this->values;
 
@@ -143,45 +146,25 @@ class JWT implements ConfigInterface
      * @param Closure $executeFunction [Execute a function using exceptions]
      *
      * @return void
-     *
-     * @throws InvalidArgumentException
-     * @throws DomainException
-     * @throws SignatureInvalidException
-     * @throws BeforeValidException
-     * @throws ExpiredException
-     * @throws UnexpectedValueException
      */
     private function execute(Closure $executeFunction): void
     {
         try {
-            $this->values = $executeFunction();
-        } catch (InvalidArgumentException $e) {
+            /** @var string|stdClass $return */
+            $return = $executeFunction();
+
+            $this->values = $return;
+        } catch (
+            BeforeValidException |
+            DomainException |
+            ExpiredException |
+            InvalidArgumentException |
+            InvalidConfigException |
+            SignatureInvalidException |
+            UnexpectedValueException $e
+        ) {
             $this->values = (object) [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
-        } catch (DomainException $e) {
-            $this->values = (object) [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
-        } catch (SignatureInvalidException $e) {
-            $this->values = (object) [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
-        } catch (BeforeValidException $e) {
-            $this->values = (object) [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
-        } catch (ExpiredException $e) {
-            $this->values = (object) [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
-        } catch (UnexpectedValueException $e) {
-            $this->values = (object) [
+                'code' => $e->getCode(),
                 'status' => 'error',
                 'message' => $e->getMessage(),
             ];
@@ -191,24 +174,17 @@ class JWT implements ConfigInterface
     /**
      * Encrypt data with defined settings
      *
-     * @param array $data [List of data to encrypt]
+     * @param array<string, mixed> $data [List of data to encrypt]
      * @param int $time [Validity time]
      * @param int $bytes [Number of bits]
      *
      * @return JWT
-     *
-     * @throws InvalidArgumentException
-     * @throws DomainException
-     * @throws SignatureInvalidException
-     * @throws BeforeValidException
-     * @throws ExpiredException
-     * @throws UnexpectedValueException
      */
     public function encode(array $data, int $time = 0, int $bytes = 16): JWT
     {
         $this->execute(function () use ($data, $time, $bytes): string {
             if (empty($this->config['privateKey'])) {
-                throw new InvalidConfigException('The privateKey has not been defined');
+                throw new InvalidConfigException('The privateKey has not been defined', 500);
             }
 
             $now = strtotime('now');
@@ -216,12 +192,22 @@ class JWT implements ConfigInterface
             $config = [
                 'iss' => $this->jwtServerUrl,
                 'aud' => $this->jwtServerUrlAud,
-                'jti' => base64_encode(random_bytes($bytes)),
+                'jti' => base64_encode(random_bytes(max(1, $bytes))),
                 'iat' => $now,
                 'nbf' => $now,
-                'exp' => $now + (0 === $time ? ((int) $this->jwtExp) : $time),
+                'exp' => $now + (0 === $time ? $this->jwtExp : $time),
                 'data' => $data,
             ];
+
+            if (
+                !is_string($this->config['privateKey']) &&
+                !$this->config['privateKey'] instanceof OpenSSLAsymmetricKey
+            ) {
+                throw new InvalidConfigException(
+                    'The privateKey must be a string or an OpenSSLAsymmetricKey instance.',
+                    500
+                );
+            }
 
             return FBJWT::encode($config, $this->config['privateKey'], $this->jwtDefaultMD);
         });
@@ -235,26 +221,26 @@ class JWT implements ConfigInterface
      * @param string|null $jwt [Json web token]
      *
      * @return JWT
-     *
-     * @throws InvalidArgumentException
-     * @throws DomainException
-     * @throws SignatureInvalidException
-     * @throws BeforeValidException
-     * @throws ExpiredException
-     * @throws UnexpectedValueException
      */
-    public function decode(?string $jwt = ''): JWT
+    public function decode(?string $jwt): JWT
     {
         $this->execute(function () use ($jwt): stdClass {
             if (empty($this->config['publicKey'])) {
-                throw new InvalidConfigException('The publicKey has not been defined');
+                throw new InvalidConfigException('The publicKey has not been defined', 500);
             }
 
             if (in_array($jwt, ['null', null, ''], true)) {
-                return (object) [
-                    'status' => 'error',
-                    'message' => 'The JWT does not exist',
-                ];
+                throw new InvalidConfigException('The JWT does not exist', 500);
+            }
+
+            if (
+                !is_string($this->config['publicKey']) &&
+                !$this->config['publicKey'] instanceof OpenSSLAsymmetricKey
+            ) {
+                throw new InvalidConfigException(
+                    'The publicKey must be a string or an OpenSSLAsymmetricKey instance.',
+                    500
+                );
             }
 
             return FBJWT::decode($jwt, new Key($this->config['publicKey'], $this->jwtDefaultMD));
@@ -264,74 +250,29 @@ class JWT implements ConfigInterface
     }
 
     /**
-     * Modify the serverUrl to generate the token
-     *
-     * @param string $jwtServerUrl [Server URL for the token]
-     *
-     * @return JWT
-     */
-    public function jwtServerUrl(string $jwtServerUrl): JWT
-    {
-        $this->jwtServerUrl = $jwtServerUrl;
-
-        return $this;
-    }
-
-    /**
-     * Modify the serverUrlAud to generate the token
-     *
-     * @param string $jwtServerUrlAud [Auxiliary URL of the site that uses it
-     * for the token]
-     *
-     * @return JWT
-     */
-    public function jwtServerUrlAud(string $jwtServerUrlAud): JWT
-    {
-        $this->jwtServerUrlAud = $jwtServerUrlAud;
-
-        return $this;
-    }
-
-    /**
-     * Modify the exp to generate the token
-     *
-     * @param int $jwtExp [Validity time]
-     *
-     * @return JWT
-     */
-    public function jwtExp(int $jwtExp): JWT
-    {
-        $this->jwtExp = $jwtExp;
-
-        return $this;
-    }
-
-    /**
-     * Modify the defaultMD to generate the token
-     *
-     * @param int $jwtDefaultMD [Encryption protocol]
-     *
-     * @return JWT
-     */
-    public function jwtDefaultMD(int $jwtDefaultMD): JWT
-    {
-        $this->jwtDefaultMD = $jwtDefaultMD;
-
-        return $this;
-    }
-
-    /**
      * Defines the type of encryption
      *
-     * @param string $encryptionMethod [Encryption type 'AES' or 'RSA']
+     * @param RSA $rsa [Allows you to generate the required configuration for
+     * public and private keys, has methods that allow you to encrypt and
+     * decrypt data with RSA]
+     *
+     * @return JWT
      */
     public function setEncryptionMethod(RSA $rsa): JWT
     {
         $rsa->init();
 
-        $this->config['publicKey'] = $rsa->getPublicKey();
+        $publicKey = $rsa->getPublicKey();
 
-        $this->config['privateKey'] = $rsa->getPrivateKey();
+        if ($publicKey instanceof OpenSSLAsymmetricKey) {
+            $this->config['publicKey'] = $publicKey;
+        }
+
+        $privateKey = $rsa->getPrivateKey();
+
+        if ($privateKey instanceof OpenSSLAsymmetricKey) {
+            $this->config['privateKey'] = $privateKey;
+        }
 
         return $this;
     }
@@ -344,7 +285,10 @@ class JWT implements ConfigInterface
     public function getJWT(): string|bool
     {
         if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-            if (preg_match('/Bearer\s(\S+)/', $_SERVER['HTTP_AUTHORIZATION'], $matches)) {
+            /** @var string $token */
+            $token = $_SERVER['HTTP_AUTHORIZATION'];
+
+            if (preg_match('/Bearer\s(\S+)/', $token, $matches)) {
                 return $matches[1];
             }
         }
