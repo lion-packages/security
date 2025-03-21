@@ -46,10 +46,17 @@ USER root
 SHELL ["/bin/bash", "--login", "-c"]
 
 # Install logo-ls
-RUN wget https://github.com/Yash-Handa/logo-ls/releases/download/v1.3.7/logo-ls_amd64.deb \
-    && dpkg -i logo-ls_amd64.deb \
-    && rm logo-ls_amd64.deb \
-    && curl https://raw.githubusercontent.com/UTFeight/logo-ls-modernized/master/INSTALL | bash
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        wget https://github.com/Yash-Handa/logo-ls/releases/download/v1.3.7/logo-ls_amd64.deb; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        wget https://github.com/Yash-Handa/logo-ls/releases/download/v1.3.7/logo-ls_arm64.deb; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi && \
+    dpkg -i logo-ls_*.deb && \
+    rm logo-ls_*.deb && \
+    curl https://raw.githubusercontent.com/UTFeight/logo-ls-modernized/master/INSTALL | bash
 
 # Add configuration in .zshrc
 RUN echo 'alias ls="logo-ls"' >> /home/lion/.zshrc \
