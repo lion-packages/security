@@ -16,7 +16,8 @@
     "require": {
         "php": ">=8.4",
         "firebase/php-jwt": "^6.1",
-        "vlucas/valitron": "^1.4"
+        "vlucas/valitron": "^1.4",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "^7.8",
