@@ -2,6 +2,7 @@
 /vendor/
 /storage/
 /tests/build/
+/.phplint.cache/
 .env
 .phpunit.result.cache
 composer.lock
