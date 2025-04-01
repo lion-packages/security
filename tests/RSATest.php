@@ -133,6 +133,9 @@ class RSATest extends Test
         $this->assertEquals(self::RSA_DEFAULT_MD, $this->getPrivateProperty('rsaDefaultMd'));
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function create(): void
     {
@@ -141,6 +144,9 @@ class RSATest extends Test
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function createWithCustomPath(): void
     {
@@ -149,6 +155,9 @@ class RSATest extends Test
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function createWithCustomRsaPrivateKeyBits(): void
     {
@@ -157,6 +166,9 @@ class RSATest extends Test
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function createWithCustomRsaDefaultMd(): void
     {
@@ -270,6 +282,9 @@ class RSATest extends Test
         $this->assertInstanceOf(OpenSSLAsymmetricKey::class, $publicKey);
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function getPrivateKey(): void
     {

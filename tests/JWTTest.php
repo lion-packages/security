@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Lion\Security\AES;
+use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\JWT;
 use Lion\Security\RSA;
 use Lion\Test\Test;
@@ -161,14 +163,18 @@ class JWTTest extends Test
         $this->assertSame(self::JWT_DEFAULT_MD, $this->getPrivateProperty('jwtDefaultMD'));
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function encodeWithRSA(): void
     {
-        /** @var OpenSSLAsymmetricKey $privateKey */
-        $privateKey = $this->rsa
+        $this->rsa
             ->config(self::CONFIG_RSA)
-            ->create()
-            ->getPrivateKey();
+            ->create();
+
+        /** @var OpenSSLAsymmetricKey $privateKey */
+        $privateKey = $this->rsa->getPrivateKey();
 
         $encode = $this->jwt
             ->config([
@@ -180,6 +186,27 @@ class JWTTest extends Test
             ->get();
 
         $this->assertIsString($encode);
+
+        /** @var OpenSSLAsymmetricKey $publicKey */
+        $publicKey = $this->rsa
+            ->getPublicKey();
+
+        $decode = $this->jwt
+            ->config([
+                'publicKey' => $publicKey,
+            ])
+            ->decode($encode)
+            ->get();
+
+        $this->assertIsObject($decode);
+        $this->assertInstanceOf(stdClass::class, $decode);
+        $this->assertObjectHasProperty('iss', $decode);
+        $this->assertObjectHasProperty('aud', $decode);
+        $this->assertObjectHasProperty('jti', $decode);
+        $this->assertObjectHasProperty('iat', $decode);
+        $this->assertObjectHasProperty('nbf', $decode);
+        $this->assertObjectHasProperty('exp', $decode);
+        $this->assertObjectHasProperty('data', $decode);
     }
 
     #[Testing]
@@ -196,6 +223,24 @@ class JWTTest extends Test
             ->get();
 
         $this->assertIsString($encode);
+
+        $decode = $this->jwt
+            ->config([
+                'publicKey' =>  self::KEY,
+                ...self::CONFIG_JWT_AES
+            ])
+            ->decode($encode)
+            ->get();
+
+        $this->assertIsObject($decode);
+        $this->assertInstanceOf(stdClass::class, $decode);
+        $this->assertObjectHasProperty('iss', $decode);
+        $this->assertObjectHasProperty('aud', $decode);
+        $this->assertObjectHasProperty('jti', $decode);
+        $this->assertObjectHasProperty('iat', $decode);
+        $this->assertObjectHasProperty('nbf', $decode);
+        $this->assertObjectHasProperty('exp', $decode);
+        $this->assertObjectHasProperty('data', $decode);
     }
 
     #[Testing]
@@ -217,6 +262,9 @@ class JWTTest extends Test
         $this->assertSame('The privateKey has not been defined', $encode->message);
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function decodeWithRSAValidJWT(): void
     {
@@ -256,6 +304,9 @@ class JWTTest extends Test
         $this->assertSame('value', $decode->data->key);
     }
 
+    /**
+     * @throws Exception
+     */
     #[Testing]
     public function decodeWithAESValidJWT(): void
     {
@@ -314,6 +365,9 @@ class JWTTest extends Test
         $this->assertSame('The publicKey has not been defined', $decode->message);
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     #[DataProvider('nullJwtDataProvider')]
     public function decodeWithNullJwt(?string $value): void
@@ -387,6 +441,7 @@ class JWTTest extends Test
 
     /**
      * @throws GuzzleException
+     * @throws InvalidConfigException
      */
     #[Testing]
     public function getJWTWithValidAuthorizationHeader(): void
@@ -410,7 +465,7 @@ class JWTTest extends Test
         $this->assertIsString($jwt);
 
         $getJwt = json_decode(
-            (new Client())
+            new Client()
                 ->get(self::JWT_SERVER_URL, [
                     'headers' => [
                         'Authorization' => "Bearer {$jwt}",
@@ -441,6 +496,9 @@ class JWTTest extends Test
         $this->assertSame('value', $decode->data->key);
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function setEncryptionMethod(): void
     {
@@ -458,6 +516,9 @@ class JWTTest extends Test
         $this->assertIsString($encode);
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     #[Testing]
     public function get(): void
     {

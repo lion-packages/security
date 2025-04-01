@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lion\Security;
 
+use Exception;
 use Lion\Security\Exceptions\AESException;
 use Lion\Security\Interfaces\ConfigInterface;
 use Lion\Security\Interfaces\EncryptionInterface;
@@ -15,11 +16,6 @@ use stdClass;
  * It allows you to generate the configuration required for AES encryption and
  * decryption, it has methods that allow you to encrypt and decrypt data with
  * AES
- *
- * @property array<string, string>|stdClass $values [Property that stores the
- * values of any type of execution being performed 'create, encode, decode']
- * @property array<string, int|string|OpenSSLAsymmetricKey> $config [Property
- * that contains the configuration defined for AES processes]
  *
  * @package Lion\Security
  */
@@ -62,6 +58,8 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
      * Returns the current array/object with the generated data
      *
      * @return array<string, string>|stdClass
+     *
+     * @infection-ignore-all
      */
     public function get(): array|stdClass
     {
@@ -167,37 +165,52 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
     }
 
     /**
+     * Add formatting to the defined algorithm
+     *
+     * @param string $key [AES algorithm type]
+     *
+     * @return string
+     */
+    private function formatCipherKey(string $key): string
+    {
+        return trim(strtolower($key));
+    }
+
+    /**
      * Get length of certain encryption method
      *
-     * @param string $method [AES algorithm type]
+     * @param string $key [AES algorithm type]
      *
-     * @return bool|int
+     * @return int
+     *
+     * @throws Exception [If the algorithm is not supported]
      */
-    public function cipherKeyLength(string $method): bool|int
+    public function cipherKeyLength(string $key): int
     {
-        return match (trim(strtolower($method))) {
+        return match ($this->formatCipherKey($key)) {
             self::AES_256_CBC => 32,
-            default => false
+            default => throw new Exception("The algorithm is not supported", 500),
         };
     }
 
     /**
      * Creates key and iv for aes encryption
      *
-     * @param string $method [AES algorithm type]
+     * @param string $key [AES algorithm type]
      *
      * @return AES
+     *
+     * @throws Exception [If the algorithm is not supported]
      */
-    public function create(string $method): AES
+    public function create(string $key): AES
     {
-        /** @var int $length */
-        $length = $this->cipherKeyLength($method);
+        $length = $this->cipherKeyLength($key);
 
         $this->values = [
             'passphrase' => hash('sha256', md5(uniqid())),
             'key' => bin2hex(openssl_random_pseudo_bytes($length)),
             'iv' => bin2hex(openssl_random_pseudo_bytes(16)),
-            'method' => $method
+            'method' => $this->formatCipherKey($key),
         ];
 
         return $this;

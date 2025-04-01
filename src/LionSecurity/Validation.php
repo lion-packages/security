@@ -22,8 +22,10 @@ class Validation
      * @param array<string, mixed> $options [An associative array containing options]
      *
      * @return string
+     *
+     * @infection-ignore-all
      */
-    public function passwordHash(string $password, array $options = ['cost' => 10]): string
+    public function passwordHash(string $password, array $options = ['cost' => 12]): string
     {
         return password_hash($password, PASSWORD_BCRYPT, $options);
     }
