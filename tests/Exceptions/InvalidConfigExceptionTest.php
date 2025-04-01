@@ -12,6 +12,7 @@ class InvalidConfigExceptionTest extends Test
     public function testExceptionIsThrown(): void
     {
         $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionCode(500);
         $this->expectExceptionMessage("Invalid Config");
 
         throw new InvalidConfigException();
@@ -19,9 +20,9 @@ class InvalidConfigExceptionTest extends Test
 
     public function testExceptionMessageAndCode(): void
     {
-        $exception = new InvalidConfigException("Custom message", 500);
+        $exception = new InvalidConfigException("ERR", 500);
 
-        $this->assertEquals("Custom message", $exception->getMessage());
+        $this->assertEquals("ERR", $exception->getMessage());
         $this->assertEquals(500, $exception->getCode());
     }
 }

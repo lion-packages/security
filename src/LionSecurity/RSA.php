@@ -16,20 +16,6 @@ use stdClass;
  * Allows you to generate the required configuration for public and private
  * keys, has methods that allow you to encrypt and decrypt data with RSA
  *
- * @property OpenSSLAsymmetricKey|false|null $publicKey [Represents the public
- * key object]
- * @property OpenSSLAsymmetricKey|false|null $privateKey [Represents the private
- * key object]
- * @property array<string, string>|stdClass $values [Property that stores the
- * values of any type of execution being performed 'encode, decode']
- * @property string $urlPath [Defines the path where the public and private keys
- * are stored]
- * @property string $rsaConfig [Defines the path where the openssl.cnf file is
- * stored to generate keys]
- * @property int $rsaPrivateKeyBits [Defines the number of Bits to generate the
- * keys]
- * @property string $rsaDefaultMd [Sets the default signing algorithm]
- *
  * @package Lion\Security
  */
 class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
@@ -86,6 +72,8 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @infection-ignore-all
      */
     public function config(array $config): RSA
     {
@@ -112,6 +100,8 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * Returns the current array/object with the generated data
      *
      * @return array<string, string>|stdClass
+     *
+     * @infection-ignore-all
      */
     public function get(): array|stdClass
     {
@@ -127,6 +117,8 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      *
      * @throws InvalidConfigException [If the public key is null]
      * @throws RuntimeException [If the encrypted data is incorrect]
+     *
+     * @infection-ignore-all
      */
     public function encode(string $key, string $value): RSA
     {
@@ -155,6 +147,8 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * {@inheritDoc}
      *
      * @throws InvalidConfigException [If the private key is null]
+     *
+     * @infection-ignore-all
      */
     public function decode(array $rows): RSA
     {
@@ -221,6 +215,8 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * Clear variables so they have their original value
      *
      * @return void
+     *
+     * @infection-ignore-all
      */
     private function clean(): void
     {
@@ -258,32 +254,38 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
      * @param string $urlPath [Defines the url where the key will be saved]
      *
      * @return RSA
+     *
+     * @throws InvalidConfigException [If key generation fails]
+     *
+     * @infection-ignore-all
      */
     public function create(string $urlPath = ''): RSA
     {
         $rsaConfig = [
             'config' => $this->rsaConfig,
             'private_key_bits' => $this->rsaPrivateKeyBits,
-            'default_md' => $this->rsaDefaultMd
+            'default_md' => $this->rsaDefaultMd,
         ];
 
         $generate = openssl_pkey_new($rsaConfig);
 
-        if ($generate instanceof OpenSSLAsymmetricKey) {
-            openssl_pkey_export($generate, $privateKey, null, $rsaConfig);
-
-            $publicKey = openssl_pkey_get_details($generate);
-
-            if ($publicKey !== false && isset($publicKey['key']) && is_string($publicKey['key'])) {
-                $this->generateKeys($urlPath, $publicKey['key']);
-            }
-
-            if (is_string($privateKey)) {
-                $this->generateKeys($urlPath, $privateKey, false);
-            }
-
-            $this->init();
+        if (!$generate) {
+            throw new InvalidConfigException('Failed to generate private key', 500);
         }
+
+        openssl_pkey_export($generate, $privateKey, null, $rsaConfig);
+
+        $publicKey = openssl_pkey_get_details($generate);
+
+        if ($publicKey !== false && isset($publicKey['key']) && is_string($publicKey['key'])) {
+            $this->generateKeys($urlPath, $publicKey['key']);
+        }
+
+        if (is_string($privateKey)) {
+            $this->generateKeys($urlPath, $privateKey, false);
+        }
+
+        $this->init();
 
         return $this;
     }

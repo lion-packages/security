@@ -17,6 +17,41 @@ trait AESEncryptionMethodProvider
             [
                 'method' => AES::AES_256_CBC,
                 'bits' => 32,
+                'returnKey' => AES::AES_256_CBC,
+            ],
+            [
+                'method' => strtoupper(AES::AES_256_CBC),
+                'bits' => 32,
+                'returnKey' => AES::AES_256_CBC,
+            ],
+            [
+                'method' => (' ' . strtoupper(AES::AES_256_CBC) . ' '),
+                'bits' => 32,
+                'returnKey' => AES::AES_256_CBC,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array{
+     *     method: string,
+     *     returnKey: string
+     * }>
+     */
+    public static function formatCipherKeyProvider(): array
+    {
+        return [
+            [
+                'method' => AES::AES_256_CBC,
+                'returnKey' => AES::AES_256_CBC,
+            ],
+            [
+                'method' => strtoupper(AES::AES_256_CBC),
+                'returnKey' => AES::AES_256_CBC,
+            ],
+            [
+                'method' => (' ' . strtoupper(AES::AES_256_CBC) . ' '),
+                'returnKey' => AES::AES_256_CBC,
             ],
         ];
     }

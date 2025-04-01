@@ -21,7 +21,7 @@ class AESException extends Exception
      * @param Exception|null $previous [The previus Throwable used for the
      * exception chaining]
      */
-    public function __construct(string $message, int $code = 0, ?Exception $previous = null)
+    public function __construct(string $message, int $code = 500, ?Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

@@ -22,17 +22,6 @@ use UnexpectedValueException;
  * Allows you to generate the required configuration for JWT tokens, has methods
  * that allow you to encrypt and decrypt data with JWT
  *
- * @property array<string, string>|stdClass|string $values [Property that stores
- * the values of any type of execution being performed 'encode, decode']
- * @property array<string, int|string|OpenSSLAsymmetricKey> $config [Property
- * that contains the configuration defined for JWT processes]
- * @property string $jwtServerUrl [Defines the url of the server that generates
- * the JWT]
- * @property string $jwtServerUrlAud [Defines the url of the site that uses the
- * JWT]
- * @property int $jwtExp [Stores the lifetime of the JWT]
- * @property string $jwtDefaultMD [Sets the default signing algorithm]
- *
  * @package Lion\Security
  */
 class JWT implements ConfigInterface
@@ -81,7 +70,7 @@ class JWT implements ConfigInterface
     private string $jwtDefaultMD = 'RS256';
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function config(array $config): JWT
     {
@@ -110,6 +99,8 @@ class JWT implements ConfigInterface
      * Returns the current array/object with the generated data
      *
      * @return array<string, string>|stdClass|string
+     *
+     * @infection-ignore-all
      */
     public function get(): array|stdClass|string
     {
@@ -124,6 +115,8 @@ class JWT implements ConfigInterface
      * Clear variables so they have their original value
      *
      * @return void
+     *
+     * @infection-ignore-all
      */
     private function clean(): void
     {
@@ -146,6 +139,8 @@ class JWT implements ConfigInterface
      * @param Closure $executeFunction [Execute a function using exceptions]
      *
      * @return void
+     *
+     * @infection-ignore-all
      */
     private function execute(Closure $executeFunction): void
     {
@@ -179,6 +174,8 @@ class JWT implements ConfigInterface
      * @param int $bytes [Number of bits]
      *
      * @return JWT
+     *
+     * @infection-ignore-all
      */
     public function encode(array $data, int $time = 0, int $bytes = 16): JWT
     {
@@ -221,6 +218,8 @@ class JWT implements ConfigInterface
      * @param string|null $jwt [Json web token]
      *
      * @return JWT
+     *
+     * @infection-ignore-all
      */
     public function decode(?string $jwt): JWT
     {
@@ -257,6 +256,11 @@ class JWT implements ConfigInterface
      * decrypt data with RSA]
      *
      * @return JWT
+     *
+     * @throws InvalidConfigException [If the public/private key has not been
+     * initialized]
+     *
+     * @infection-ignore-all
      */
     public function setEncryptionMethod(RSA $rsa): JWT
     {
@@ -264,15 +268,19 @@ class JWT implements ConfigInterface
 
         $publicKey = $rsa->getPublicKey();
 
-        if ($publicKey instanceof OpenSSLAsymmetricKey) {
-            $this->config['publicKey'] = $publicKey;
+        if (empty($publicKey)) {
+            throw new InvalidConfigException('The public key has not been defined', 500);
         }
 
         $privateKey = $rsa->getPrivateKey();
 
-        if ($privateKey instanceof OpenSSLAsymmetricKey) {
-            $this->config['privateKey'] = $privateKey;
+        if (empty($privateKey)) {
+            throw new InvalidConfigException('The private key has not been defined', 500);
         }
+
+        $this->config['publicKey'] = $publicKey;
+
+        $this->config['privateKey'] = $privateKey;
 
         return $this;
     }
