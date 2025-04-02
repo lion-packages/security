@@ -19,7 +19,8 @@ class Validation
      * Creates a password hash
      *
      * @param string $password [The user's password]
-     * @param array<string, mixed> $options [An associative array containing options]
+     * @param array<string, mixed> $options [An associative array containing
+     * options]
      *
      * @return string
      *
@@ -33,31 +34,44 @@ class Validation
     /**
      * Validate the data sent in an HTTP request with rules using Validator
      *
-     * @param array<string, mixed> $rows [Rows with data to validate]
+     * @param array<string, mixed>|Validator $data [List of data or Object to
+     * validate]
      * @param Closure $validateFunction [Function that carries the rules logic
      * defined for validation]
      *
      * @return stdClass
      */
-    public function validate(array $rows, Closure $validateFunction): stdClass
+    public function validate(array|Validator $data, Closure $validateFunction): stdClass
     {
-        $validator = new Validator($rows);
+        $returnResponse = function (Validator $instance): stdClass {
+            $validate = $instance->validate();
+
+            if ($validate) {
+                return (object) [
+                    'code' => 200,
+                    'status' => 'success',
+                    'message' => 'validations have been completed',
+                ];
+            } else {
+                return (object) [
+                    'code' => 500,
+                    'status' => 'error',
+                    'messages' => $instance->errors(),
+                ];
+            }
+        };
+
+        if ($data instanceof Validator) {
+            $validateFunction($data);
+
+            return $returnResponse($data);
+        }
+
+        $validator = new Validator($data);
 
         $validateFunction($validator);
 
-        if ($validator->validate()) {
-            return (object) [
-                'code' => 200,
-                'status' => 'success',
-                'message' => 'validations have been completed',
-            ];
-        } else {
-            return (object) [
-                'code' => 500,
-                'status' => 'error',
-                'messages' => $validator->errors(),
-            ];
-        }
+        return $returnResponse($validator);
     }
 
     /**

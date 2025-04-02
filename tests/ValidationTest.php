@@ -66,9 +66,61 @@ class ValidationTest extends Test
     }
 
     #[Testing]
+    public function validateSuccessWithValidatorObject(): void
+    {
+        $validator = new Validator(['field' => 'value']);
+
+        $response = $this->validation->validate($validator, function (Validator $validator): void {
+            $validator->rule('required', 'field');
+        });
+
+        $this->assertInstanceOf(stdClass::class, $response);
+        $this->assertObjectHasProperty('code', $response);
+        $this->assertObjectHasProperty('status', $response);
+        $this->assertObjectHasProperty('message', $response);
+        $this->assertIsInt($response->code);
+        $this->assertIsString($response->status);
+        $this->assertIsString($response->message);
+        $this->assertSame(200, $response->code);
+        $this->assertSame('success', $response->status);
+        $this->assertSame('validations have been completed', $response->message);
+    }
+
+    #[Testing]
     public function validateError(): void
     {
-        $response = $this->validation->validate([], function (Validator $validator) {
+        $response = $this->validation->validate([], function (Validator $validator): void {
+            $validator->rule('required', 'field');
+        });
+
+        $this->assertInstanceOf(stdClass::class, $response);
+        $this->assertObjectHasProperty('code', $response);
+        $this->assertObjectHasProperty('status', $response);
+        $this->assertObjectHasProperty('messages', $response);
+        $this->assertIsInt($response->code);
+        $this->assertIsString($response->status);
+        $this->assertIsArray($response->messages);
+        $this->assertSame(500, $response->code);
+        $this->assertSame('error', $response->status);
+        $this->assertIsArray($response->messages);
+        $this->assertNotEmpty($response->messages);
+        $this->assertArrayHasKey('field', $response->messages);
+        $this->assertIsArray($response->messages['field']);
+        $this->assertNotEmpty($response->messages['field']);
+        $this->assertArrayHasKey(0, $response->messages['field']);
+
+        $message = $response->messages['field'][0];
+
+        $this->assertIsString($message);
+        $this->assertSame('Field is required', $message);
+    }
+
+    #[Testing]
+    public function validateErrorWithValidatorObject(): void
+    {
+        $validator = new Validator([]);
+
+        $response = $this->validation->validate($validator, function (Validator $validator): void {
             $validator->rule('required', 'field');
         });
 

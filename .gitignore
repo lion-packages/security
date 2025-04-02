@@ -3,6 +3,7 @@
 /storage/
 /tests/build/
 /.phplint.cache/
+*.key
 .env
 .phpunit.result.cache
 composer.lock
