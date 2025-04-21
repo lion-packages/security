@@ -172,7 +172,6 @@ class RSATest extends Test
     #[Testing]
     public function createWithCustomRsaDefaultMd(): void
     {
-
         $this->assertInstanceOf(RSA::class, $this->rsa->config(['rsaDefaultMd' => 'sha512'])->create());
         $this->assertFileExists("{$this->rsa->getUrlPath()}public.key");
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
