@@ -42,7 +42,10 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
      *
      * @var array<string, int|string|OpenSSLAsymmetricKey> $config
      */
-    private array $config = [];
+    private array $config = [
+
+        
+    ];
 
     /**
      * {@inheritDoc}
