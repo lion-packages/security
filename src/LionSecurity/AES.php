@@ -44,7 +44,7 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
      */
     private array $config = [
 
-        
+
     ];
 
     /**
