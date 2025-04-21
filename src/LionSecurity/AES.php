@@ -113,7 +113,7 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
      */
     public function decode(array $rows): AES
     {
-        foreach ($rows as $key => $row) {
+        foreach ($rows as $key => $row){
             /** @var string $method */
             $method = $this->config['method'];
 
