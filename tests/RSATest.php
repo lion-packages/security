@@ -11,20 +11,20 @@ use stdClass;
 
 class RSATest extends Test
 {
-    const URL_PATH_EXAMPLE = './storage/example/';
-    const URL_PATH_CUSTOM = './storage/custom-keys/';
-    const URL_PATH = './storage/keys/';
-    const RSA_CONFIG = '/etc/ssl/openssl.cnf';
-    const RSA_PRIVATE_KEY_BITS = 2048;
-    const RSA_DEFAULT_MD = 'sha256';
-    const CONFIG = [
+    public const URL_PATH_EXAMPLE = './storage/example/';
+    public const URL_PATH_CUSTOM = './storage/custom-keys/';
+    public const URL_PATH = './storage/keys/';
+    public const RSA_CONFIG = '/etc/ssl/openssl.cnf';
+    public const RSA_PRIVATE_KEY_BITS = 2048;
+    public const RSA_DEFAULT_MD = 'sha256';
+    public const CONFIG = [
         'urlPath' => self::URL_PATH,
         'rsaConfig' => self::RSA_CONFIG,
         'rsaPrivateKeyBits' => self::RSA_PRIVATE_KEY_BITS,
         'rsaDefaultMd' => self::RSA_DEFAULT_MD
     ];
-    const KEY_NAME = 'user_name';
-    const VALUE_NAME = 'Sleon';
+    public const KEY_NAME = 'user_name';
+    public const VALUE_NAME = 'Sleon';
 
     private RSA $rsa;
 
@@ -130,7 +130,6 @@ class RSATest extends Test
 
     public function testCreateWithCustomRsaDefaultMd(): void
     {
-
         $this->assertInstanceOf(RSA::class, $this->rsa->config(['rsaDefaultMd' => 'sha512'])->create());
         $this->assertFileExists("{$this->rsa->getUrlPath()}public.key");
         $this->assertFileExists("{$this->rsa->getUrlPath()}private.key");
