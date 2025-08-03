@@ -14,36 +14,36 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class JWTTest extends Test
 {
-    const string JWT_SERVER_URL = 'http://localhost:8000';
-    const string JWT_SERVER_URL_AUD = 'http://localhost:5173';
-    const int JWT_EXP = 3600;
-    const string JWT_DEFAULT_MD = 'RS256';
-    const string JWT_DEFAULT_MD_AES = 'HS256';
-    const array CONFIG_JWT_RSA = [
+    public const string JWT_SERVER_URL = 'http://localhost:8000';
+    public const string JWT_SERVER_URL_AUD = 'http://localhost:5173';
+    public const int JWT_EXP = 3600;
+    public const string JWT_DEFAULT_MD = 'RS256';
+    public const string JWT_DEFAULT_MD_AES = 'HS256';
+    public const array CONFIG_JWT_RSA = [
         'jwtServerUrl' => self::JWT_SERVER_URL,
         'jwtServerUrlAud' => self::JWT_SERVER_URL_AUD,
         'jwtExp' => self::JWT_EXP,
         'jwtDefaultMD' => self::JWT_DEFAULT_MD
     ];
-    const array CONFIG_JWT_AES = [
+    public const array CONFIG_JWT_AES = [
         'jwtServerUrl' => self::JWT_SERVER_URL,
         'jwtServerUrlAud' => self::JWT_SERVER_URL_AUD,
         'jwtExp' => self::JWT_EXP,
         'jwtDefaultMD' => 'HS256'
     ];
-    const string URL_PATH = './storage/keys/';
-    const string RSA_CONFIG = '/etc/ssl/openssl.cnf';
-    const int RSA_PRIVATE_KEY_BITS = 2048;
-    const string RSA_DEFAULT_MD = 'sha256';
-    const array CONFIG_RSA = [
+    public const string URL_PATH = './storage/keys/';
+    public const string RSA_CONFIG = '/etc/ssl/openssl.cnf';
+    public const int RSA_PRIVATE_KEY_BITS = 2048;
+    public const string RSA_DEFAULT_MD = 'sha256';
+    public const array CONFIG_RSA = [
         'urlPath' => self::URL_PATH,
         'rsaConfig' => self::RSA_CONFIG,
         'rsaPrivateKeyBits' => self::RSA_PRIVATE_KEY_BITS,
         'rsaDefaultMd' => self::RSA_DEFAULT_MD
     ];
-    const string KEY = '0123456789sleon4';
-    const string IV = 'sleon40123456789';
-    const array CONFIG_AES = [
+    public const string KEY = '0123456789sleon4';
+    public const string IV = 'sleon40123456789';
+    public const array CONFIG_AES = [
         'key' => self::KEY,
         'iv' => self::IV,
         'method' => AES::AES_256_CBC

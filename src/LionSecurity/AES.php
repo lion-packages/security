@@ -29,7 +29,7 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
      *
      * @const AES_256_CBC
      */
-    const AES_256_CBC = 'aes-256-cbc';
+    public const AES_256_CBC = 'aes-256-cbc';
 
     /**
      * [Property that stores the values of any type of execution being
