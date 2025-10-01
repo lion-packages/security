@@ -3,6 +3,16 @@
     "description": "Library created with the function of implementing AES, RSA and JWT Security functions for PHP.",
     "type": "library",
     "license": "MIT",
+    "homepage": "https://dev.lion-packages.com",
+    "keywords": [
+        "lion",
+        "security",
+        "lion-security"
+    ],
+    "support": {
+        "issues": "https://github.com/lion-packages/security/issues",
+        "source": "https://github.com/lion-packages/security"
+    },
     "autoload": {
         "psr-4": {
             "Lion\\Security\\": "src/LionSecurity/"
