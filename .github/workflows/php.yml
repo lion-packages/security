@@ -3,11 +3,17 @@ name: Lion-Security (CI Workflow)
 on:
   push:
     branches:
-      - actions
+      - php-actions
   pull_request:
     branches:
-      - main
       - 11.x
+    paths:
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/php.yml"
+      - "composer.json"
+      - "composer.lock"
+      - "phpunit.xml"
 
 jobs:
   install-dependencies:
