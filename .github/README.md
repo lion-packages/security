@@ -1,8 +1,4 @@
-<p align="center">
-  <a href="https://dev.lion-packages.com/docs/library/content" target="_blank">
-    <img width="1920" height="1080" alt="presentation-lion-packages" src="https://github.com/user-attachments/assets/185b620a-b4a0-4fa4-8fa6-581fd2d20332" />
-  </a>
-</p>
+<img width="1920" height="1080" alt="presentation-lion-packages" src="https://github.com/user-attachments/assets/35815432-5f2d-44df-b3bd-382858714d9a" />
 
 
 <p align="center">
