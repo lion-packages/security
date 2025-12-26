@@ -1,6 +1,6 @@
 services:
-    app:
-        container_name: security-app
+    php:
+        container_name: security-php
         build:
             context: .
             dockerfile: Dockerfile
@@ -8,6 +8,7 @@ services:
             - "8000:8000"
         volumes:
             - ./:/var/www/html
+
 networks:
     lion:
         driver: bridge

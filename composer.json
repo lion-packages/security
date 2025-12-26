@@ -1,6 +1,6 @@
 {
     "name": "lion/security",
-    "description": "Library created with the function of implementing AES, RSA and JWT Security functions for PHP.",
+    "description": "Library created with the function of implementing AES, RSA and JWT security features for PHP.",
     "type": "library",
     "license": "MIT",
     "homepage": "https://dev.lion-packages.com",
@@ -24,10 +24,10 @@
         }
     },
     "require": {
-        "php": ">=8.4",
+        "php": ">=8.5",
+        "ext-openssl": "*",
         "firebase/php-jwt": "^6.1",
-        "vlucas/valitron": "^1.4",
-        "ext-openssl": "*"
+        "vlucas/valitron": "^1.4"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "^7.8",
