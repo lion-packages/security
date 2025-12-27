@@ -159,7 +159,7 @@ class JWT implements ConfigInterface
             UnexpectedValueException $e
         ) {
             $this->values = (object) [
-                'code' => $e->getCode(),
+                'code' => 500,
                 'status' => 'error',
                 'message' => $e->getMessage(),
             ];
@@ -180,8 +180,8 @@ class JWT implements ConfigInterface
     public function encode(array $data, int $time = 0, int $bytes = 16): JWT
     {
         $this->execute(function () use ($data, $time, $bytes): string {
-            if (empty($this->config['privateKey'])) {
-                throw new InvalidConfigException('The privateKey has not been defined', 500);
+            if (empty($this->config['key'])) {
+                throw new InvalidConfigException('The key has not been defined.', 500);
             }
 
             $now = strtotime('now');
@@ -197,16 +197,16 @@ class JWT implements ConfigInterface
             ];
 
             if (
-                !is_string($this->config['privateKey']) &&
-                !$this->config['privateKey'] instanceof OpenSSLAsymmetricKey
+                !is_string($this->config['key']) &&
+                !$this->config['key'] instanceof OpenSSLAsymmetricKey
             ) {
                 throw new InvalidConfigException(
-                    'The privateKey must be a string or an OpenSSLAsymmetricKey instance.',
+                    'The key must be a string or an OpenSSLAsymmetricKey instance.',
                     500
                 );
             }
 
-            return FBJWT::encode($config, $this->config['privateKey'], $this->jwtDefaultMD);
+            return FBJWT::encode($config, $this->config['key'], $this->jwtDefaultMD);
         });
 
         return $this;
@@ -224,69 +224,32 @@ class JWT implements ConfigInterface
     public function decode(?string $jwt): JWT
     {
         $this->execute(function () use ($jwt): stdClass {
-            if (empty($this->config['publicKey'])) {
-                throw new InvalidConfigException('The publicKey has not been defined', 500);
+            if (empty($this->config['key'])) {
+                throw new InvalidConfigException('The key has not been defined.', 500);
             }
 
             if (in_array($jwt, ['null', null, ''], true)) {
-                throw new InvalidConfigException('The JWT does not exist', 500);
+                throw new InvalidConfigException('The JWT does not exist.', 500);
             }
 
             if (
-                !is_string($this->config['publicKey']) &&
-                !$this->config['publicKey'] instanceof OpenSSLAsymmetricKey
+                !is_string($this->config['key']) &&
+                !$this->config['key'] instanceof OpenSSLAsymmetricKey
             ) {
                 throw new InvalidConfigException(
-                    'The publicKey must be a string or an OpenSSLAsymmetricKey instance.',
+                    'The key must be a string or an OpenSSLAsymmetricKey instance.',
                     500
                 );
             }
 
-            return FBJWT::decode($jwt, new Key($this->config['publicKey'], $this->jwtDefaultMD));
+            return FBJWT::decode($jwt, new Key($this->config['key'], $this->jwtDefaultMD));
         });
 
         return $this;
     }
 
     /**
-     * Defines the type of encryption
-     *
-     * @param RSA $rsa [Allows you to generate the required configuration for
-     * public and private keys, has methods that allow you to encrypt and
-     * decrypt data with RSA]
-     *
-     * @return JWT
-     *
-     * @throws InvalidConfigException [If the public/private key has not been
-     * initialized]
-     *
-     * @infection-ignore-all
-     */
-    public function setEncryptionMethod(RSA $rsa): JWT
-    {
-        $rsa->init();
-
-        $publicKey = $rsa->getPublicKey();
-
-        if (empty($publicKey)) {
-            throw new InvalidConfigException('The public key has not been defined', 500);
-        }
-
-        $privateKey = $rsa->getPrivateKey();
-
-        if (empty($privateKey)) {
-            throw new InvalidConfigException('The private key has not been defined', 500);
-        }
-
-        $this->config['publicKey'] = $publicKey;
-
-        $this->config['privateKey'] = $privateKey;
-
-        return $this;
-    }
-
-    /**
-     * Gets the HTTP_AUTHORIZATION header token
+     * Gets the HTTP_AUTHORIZATION header token.
      *
      * @return string|bool
      */
