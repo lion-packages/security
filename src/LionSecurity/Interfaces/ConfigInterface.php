@@ -7,9 +7,7 @@ namespace Lion\Security\Interfaces;
 use OpenSSLAsymmetricKey;
 
 /**
- * Represents the implementation for configuring encryption processes
- *
- * @package Lion\Security\Interfaces
+ * Represents the implementation for configuring encryption processes.
  */
 interface ConfigInterface
 {
@@ -18,6 +16,7 @@ interface ConfigInterface
      *
      * RSA:
      *
+     * * key
      * * urlPath
      * * rsaConfig
      * * rsaPrivateKeyBits
@@ -25,13 +24,11 @@ interface ConfigInterface
      *
      * AES:
      *
-     * * passphrase
      * * key
-     * * iv
-     * * method
      *
      * JWT:
      *
+     * * key
      * * jwtServerUrl
      * * jwtServerUrlAud
      * * jwtExp
@@ -40,21 +37,16 @@ interface ConfigInterface
      * * publicKey
      *
      * @param array{
+     *     key: int|null|string|OpenSSLAsymmetricKey,
      *     urlPath?: string,
      *     rsaConfig?: string,
      *     rsaPrivateKeyBits?: int,
      *     rsaDefaultMd?: string,
-     *     passphrase?: string,
-     *     key?: string,
-     *     iv?: string,
-     *     method?: string,
      *     jwtServerUrl?: string,
      *     jwtServerUrlAud?: string,
      *     jwtExp?: int,
-     *     jwtDefaultMD?: string,
-     *     privateKey?: OpenSSLAsymmetricKey|string,
-     *     publicKey?: OpenSSLAsymmetricKey|string
-     * } $config [Configuration data list]
+     *     jwtDefaultMD?: string
+     * } $config Configuration data list.
      *
      * @return ConfigInterface
      */

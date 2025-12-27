@@ -11,21 +11,14 @@ use Lion\Security\Interfaces\ConfigInterface;
 use Lion\Security\Interfaces\EncryptionInterface;
 use Lion\Security\Interfaces\ObjectInterface;
 use Lion\Test\Test;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test as Testing;
 use ReflectionException;
 use stdClass;
-use Tests\Providers\AESEncryptionMethodProvider;
 
 class AESTest extends Test
 {
-    use AESEncryptionMethodProvider;
-
     private AES $aes;
 
-    /**
-     * @throws ReflectionException
-     */
     protected function setUp(): void
     {
         $this->aes = new AES();
@@ -34,21 +27,16 @@ class AESTest extends Test
     }
 
     /**
-     * @throws ReflectionException
-     * @throws Exception
+     * @throws Exception If the algorithm is not supported.
+     * @throws ReflectionException If the property does not exist in the reflected
+     * class.
      */
     #[Testing]
-    #[DataProvider('AESEncryptionMethodProvider')]
-    public function config(string $method, int $bits, string $returnKey): void
+    public function config(): void
     {
-        /** @var array{
-         *     passphrase?: string,
-         *     key?: string,
-         *     iv?: string,
-         *     method?: string
-         *  } $config */
+        /** @var array{ key: string, iv: string } $config */
         $config = $this->aes
-            ->create($method)
+            ->create()
             ->get();
 
         $this->assertInstances($this->aes->config($config), [
@@ -62,52 +50,56 @@ class AESTest extends Test
     }
 
     /**
-     * @throws AESException
-     * @throws Exception
+     * @throws AESException This class represents custom exceptions for AES class
+     * processes.
+     * @throws Exception If the algorithm is not supported.
      */
     #[Testing]
     public function get(): void
     {
-        /** @var array{
-         *     passphrase?: string,
-         *     key?: string,
-         *     iv?: string,
-         *     method?: string
-         *  } $config */
+        /** @var array{ key: string, iv: string } $config */
         $config = $this->aes
-            ->create(AES::AES_256_CBC)
+            ->create()
             ->get();
 
         $encode = $this->aes
-            ->config($config)
-            ->encode('user_name', 'Sleon')
+            ->config([
+                'key' => $config['key'],
+            ])
+            ->encode([
+                'user_name' => 'Sleon4',
+            ])
             ->get();
 
         $this->assertIsArray($encode);
-        $this->assertArrayHasKey('user_name', $encode);
+        $this->assertArrayHasKey('data', $encode);
+        $this->assertArrayHasKey('iv', $encode);
+        $this->assertArrayHasKey('tag', $encode);
+        $this->assertNotEmpty($encode['data']);
+        $this->assertNotEmpty($encode['iv']);
+        $this->assertNotEmpty($encode['tag']);
     }
 
     /**
-     * @throws AESException
-     * @throws Exception
+     * @throws AESException This class represents custom exceptions for AES class
+     * processes.
+     * @throws Exception If the algorithm is not supported.
      */
     #[Testing]
-    #[DataProvider('AESEncryptionMethodProvider')]
-    public function encode(string $method, int $bits, string $returnKey): void
+    public function encode(): void
     {
-        /** @var array{
-         *     passphrase?: string,
-         *     key?: string,
-         *     iv?: string,
-         *     method?: string
-         *  } $config */
+        /** @var array{ key: string, iv: string } $config */
         $config = $this->aes
-            ->create($method)
+            ->create()
             ->get();
 
         $encode = $this->aes
-            ->config($config)
-            ->encode('user_name', 'Sleon');
+            ->config([
+                'key' => $config['key'],
+            ])
+            ->encode([
+                'user_name' => 'Sleon4',
+            ]);
 
         $this->assertInstances($encode, [
             AES::class,
@@ -119,7 +111,12 @@ class AESTest extends Test
         $encode = $this->aes->get();
 
         $this->assertIsArray($encode);
-        $this->assertArrayHasKey('user_name', $encode);
+        $this->assertArrayHasKey('data', $encode);
+        $this->assertArrayHasKey('iv', $encode);
+        $this->assertArrayHasKey('tag', $encode);
+        $this->assertNotEmpty($encode['data']);
+        $this->assertNotEmpty($encode['iv']);
+        $this->assertNotEmpty($encode['tag']);
     }
 
     /**
@@ -129,42 +126,39 @@ class AESTest extends Test
     #[Testing]
     public function decode(): void
     {
-        /** @var array{
-         *     passphrase?: string,
-         *     key?: string,
-         *     iv?: string,
-         *     method?: string
-         *  } $config */
+        /** @var array{ key: string, iv: string } $config */
         $config = $this->aes
-            ->create(AES::AES_256_CBC)
+            ->create()
             ->get();
 
-        $key1 = 'key1';
-
-        $value1 = 'encoded_value_1';
-
-        $key2 = 'key2';
-
-        $value2 = 'encoded_value_2';
-
         $encode = $this->aes
-            ->config($config)
-            ->encode($key1, $value1)
-            ->encode($key2, $value2)
+            ->config([
+                'key' => $config['key'],
+            ])
+            ->encode([
+                'user_name' => 'Sleon4',
+            ])
             ->get();
 
         $this->assertIsArray($encode);
+        $this->assertArrayHasKey('data', $encode);
+        $this->assertArrayHasKey('iv', $encode);
+        $this->assertArrayHasKey('tag', $encode);
+        $this->assertNotEmpty($encode['data']);
+        $this->assertNotEmpty($encode['iv']);
+        $this->assertNotEmpty($encode['tag']);
 
         $decode = $this->aes
-            ->config($config)
+            ->config([
+                'key' => $config['key'],
+            ])
             ->decode($encode)
             ->get();
 
         $this->assertIsArray($decode);
-        $this->assertArrayHasKey($key1, $decode);
-        $this->assertArrayHasKey($key2, $decode);
-        $this->assertSame($value1, $decode[$key1]);
-        $this->assertSame($value2, $decode[$key2]);
+        $this->assertNotEmpty($decode);
+        $this->assertArrayHasKey('user_name', $decode);
+        $this->assertSame('Sleon4', $decode['user_name']);
     }
 
     /**
@@ -174,25 +168,29 @@ class AESTest extends Test
     #[Testing]
     public function toObject(): void
     {
-        /** @var array{
-         *     passphrase?: string,
-         *     key?: string,
-         *     iv?: string,
-         *     method?: string
-         *  } $config */
+        /** @var array{ key: string, iv: string } $config */
         $config = $this->aes
-            ->create(AES::AES_256_CBC)
+            ->create()
             ->get();
 
         $encode = $this->aes
-            ->config($config)
-            ->encode('user_name', 'Sleon')
+            ->config([
+                'key' => $config['key'],
+            ])
+            ->encode([
+                'user_name' => 'Sleon4',
+            ])
             ->toObject()
             ->get();
 
         $this->assertIsObject($encode);
         $this->assertInstanceOf(stdClass::class, $encode);
-        $this->assertObjectHasProperty('user_name', $encode);
+        $this->assertObjectHasProperty('data', $encode);
+        $this->assertObjectHasProperty('iv', $encode);
+        $this->assertObjectHasProperty('tag', $encode);
+        $this->assertNotEmpty($encode->{'data'});
+        $this->assertNotEmpty($encode->{'iv'});
+        $this->assertNotEmpty($encode->{'tag'});
     }
 
     /**
@@ -208,60 +206,18 @@ class AESTest extends Test
     }
 
     /**
-     * @throws ReflectionException
-     */
-    #[Testing]
-    #[DataProvider('formatCipherKeyProvider')]
-    public function formatCipherKey(string $method, string $returnKey): void
-    {
-        $format = $this->getPrivateMethod('formatCipherKey', [
-            'key' => $method,
-        ]);
-
-        $this->assertSame($returnKey, $format);
-    }
-
-    /**
      * @throws Exception
      */
     #[Testing]
-    #[DataProvider('AESEncryptionMethodProvider')]
-    public function cipherKeyLength(string $method, int $bits, string $returnKey): void
-    {
-        $lenght = $this->aes->cipherKeyLength($method);
-
-        $this->assertSame($bits, $lenght);
-    }
-
-    /**
-     * @throws Exception
-     */
-    #[Testing]
-    public function cipherKeyLengthNotExist(): void
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionCode(500);
-        $this->expectExceptionMessage("The algorithm is not supported");
-
-        $this->aes->cipherKeyLength(uniqid());
-    }
-
-    /**
-     * @throws Exception
-     */
-    #[Testing]
-    #[DataProvider('AESEncryptionMethodProvider')]
-    public function testCreate(string $method, int $bits, string $returnKey): void
+    public function create(): void
     {
         $config = $this->aes
-            ->create($method)
+            ->create()
             ->get();
 
         $this->assertIsArray($config);
-        $this->assertArrayHasKey('passphrase', $config);
+        $this->assertNotEmpty($config);
         $this->assertArrayHasKey('key', $config);
         $this->assertArrayHasKey('iv', $config);
-        $this->assertArrayHasKey('method', $config);
-        $this->assertSame($returnKey, $config['method']);
     }
 }

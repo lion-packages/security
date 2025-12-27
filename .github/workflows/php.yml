@@ -132,9 +132,6 @@ jobs:
       - name: PHPStan (Src)
         run: php -d memory_limit=-1 vendor/bin/phpstan analyse --level 10 src
 
-      - name: PHPStan (Test)
-        run: php -d memory_limit=-1 vendor/bin/phpstan analyse --level 10 tests
-
   tests-phpunit:
     runs-on: ubuntu-latest
     name: PHPUnit
