@@ -4,29 +4,35 @@ declare(strict_types=1);
 
 namespace Lion\Security\Interfaces;
 
+use Lion\Security\Exceptions\AESException;
+
 /**
- * Represents the implementation of methods for encryption and decryption
- *
- * @package Lion\Security\Interfaces
+ * Represents the implementation of methods for encryption and decryption.
  */
 interface EncryptionInterface
 {
     /**
-     * Encrypt data with defined settings
+     * Encrypt data with defined settings.
      *
-     * @param string $key [Key of the word to be encrypted]
-     * @param string $value [Value of the word to be encrypted]
+     * @param array<string, float|int|string> $data Data encrypted in a single
+     * block.
      *
      * @return EncryptionInterface
+     *
+     * @throws AESException This class represents custom exceptions for AES class
+     * processes.
      */
-    public function encode(string $key, string $value): EncryptionInterface;
+    public function encode(array $data): EncryptionInterface;
 
     /**
-     * Decodes the data with the defined settings
+     * Decodes the data with the defined settings.
      *
-     * @param array<string, string> $rows [list of decrypted items]
+     * @param array<string, string> $encrypted Encrypted data block.
      *
      * @return EncryptionInterface
+     *
+     * @throws AESException This class represents custom exceptions for AES class
+     * processes.
      */
-    public function decode(array $rows): EncryptionInterface;
+    public function decode(array $encrypted): EncryptionInterface;
 }

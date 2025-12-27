@@ -23,6 +23,7 @@ class JWTTest extends Test
 {
     use JWTProvider;
 
+    private const string KEY = '6f8d1f2d41b5c899ca04d8fc1bdbd1311fe668942e75943bb9701030c6e43f99';
     private const string JWT_SERVER_URL = 'http://localhost:8000';
     private const string JWT_SERVER_URL_AUD = 'http://localhost:5173';
     private const int JWT_EXP = 3600;
@@ -48,17 +49,13 @@ class JWTTest extends Test
         'urlPath' => self::URL_PATH,
         'rsaConfig' => self::RSA_CONFIG,
         'rsaPrivateKeyBits' => self::RSA_PRIVATE_KEY_BITS,
-        'rsaDefaultMd' => self::RSA_DEFAULT_MD
+        'rsaDefaultMd' => self::RSA_DEFAULT_MD,
     ];
-    private const string KEY = '0123456789sleon4';
 
     private JWT $jwt;
     private RSA $rsa;
     private AES $aes;
 
-    /**
-     * @throws ReflectionException
-     */
     protected function setUp(): void
     {
         $this->rsa = new RSA();
@@ -173,27 +170,27 @@ class JWTTest extends Test
             ->config(self::CONFIG_RSA)
             ->create();
 
-        /** @var OpenSSLAsymmetricKey $privateKey */
-        $privateKey = $this->rsa->getPrivateKey();
+        /** @var OpenSSLAsymmetricKey $key */
+        $key = $this->rsa->getPrivateKey();
 
         $encode = $this->jwt
             ->config([
-                'privateKey' => $privateKey,
+                'key' => $key,
             ])
             ->encode([
-                'key' => 'value',
+                'index-key' => 'value',
             ])
             ->get();
 
         $this->assertIsString($encode);
 
-        /** @var OpenSSLAsymmetricKey $publicKey */
-        $publicKey = $this->rsa
+        /** @var OpenSSLAsymmetricKey $key */
+        $key = $this->rsa
             ->getPublicKey();
 
         $decode = $this->jwt
             ->config([
-                'publicKey' => $publicKey,
+                'key' => $key,
             ])
             ->decode($encode)
             ->get();
@@ -214,11 +211,11 @@ class JWTTest extends Test
     {
         $encode = $this->jwt
             ->config([
-                'privateKey' => self::KEY,
+                'key' => self::KEY,
                 ...self::CONFIG_JWT_AES
             ])
             ->encode([
-                'key' => 'value',
+                'index-key' => 'value',
             ])
             ->get();
 
@@ -226,7 +223,7 @@ class JWTTest extends Test
 
         $decode = $this->jwt
             ->config([
-                'publicKey' =>  self::KEY,
+                'key' =>  self::KEY,
                 ...self::CONFIG_JWT_AES
             ])
             ->decode($encode)
@@ -244,12 +241,12 @@ class JWTTest extends Test
     }
 
     #[Testing]
-    public function encodeWithMissingPrivateKey(): void
+    public function encodeWithMissingkey(): void
     {
         $encode = $this->jwt
             ->config([])
             ->encode([
-                'key' => 'value',
+                'index-key' => 'value',
             ])
             ->get();
 
@@ -259,7 +256,7 @@ class JWTTest extends Test
         $this->assertObjectHasProperty('message', $encode);
         $this->assertSame(500, $encode->code);
         $this->assertSame('error', $encode->status);
-        $this->assertSame('The privateKey has not been defined', $encode->message);
+        $this->assertSame('The key has not been defined.', $encode->message);
     }
 
     /**
@@ -272,25 +269,23 @@ class JWTTest extends Test
             ->config(self::CONFIG_RSA)
             ->create();
 
-        /** @var OpenSSLAsymmetricKey $privateKey */
-        $privateKey = $this->rsa->getPrivateKey();
-
         $jwt = $this->jwt
             ->config([
-                'privateKey' => $privateKey,
-            ])->encode([
-                'key' => 'value',
+                ...self::CONFIG_JWT_RSA,
+                'key' => $this->rsa->getPrivateKey(),
+            ])
+            ->encode([
+                'index-key' => 'value',
             ], 3600)
             ->get();
 
         $this->assertIsString($jwt);
-
-        /** @var OpenSSLAsymmetricKey $publicKey */
-        $publicKey = $this->rsa->getPublicKey();
+        $this->assertNotEmpty($jwt);
 
         $decode = $this->jwt
             ->config([
-                'publicKey' => $publicKey,
+                ...self::CONFIG_JWT_RSA,
+                'key' => $this->rsa->getPublicKey(),
             ])
             ->decode($jwt)
             ->get();
@@ -300,8 +295,8 @@ class JWTTest extends Test
         $this->assertObjectHasProperty('data', $decode);
         $this->assertIsObject($decode->data);
         $this->assertInstanceOf(stdClass::class, $decode->data);
-        $this->assertObjectHasProperty('key', $decode->data);
-        $this->assertSame('value', $decode->data->key);
+        $this->assertObjectHasProperty('index-key', $decode->data);
+        $this->assertSame('value', $decode->data->{'index-key'});
     }
 
     /**
@@ -310,22 +305,18 @@ class JWTTest extends Test
     #[Testing]
     public function decodeWithAESValidJWT(): void
     {
-        /** @var stdClass $config */
+        /** @var array{ key: string, iv: string } $config */
         $config = $this->aes
-            ->create(AES::AES_256_CBC)
-            ->toObject()
+            ->create()
             ->get();
-
-        /** @var string $key */
-        $key = $config->key;
 
         $jwt = $this->jwt
             ->config([
                 'jwtDefaultMD' => self::JWT_DEFAULT_MD_AES,
-                'privateKey' => $key,
+                'key' => $config['key'],
             ])
             ->encode([
-                'key' => 'value',
+                'index-key' => 'value',
             ], 3600)
             ->get();
 
@@ -334,7 +325,7 @@ class JWTTest extends Test
         $decode = $this->jwt
             ->config([
                 'jwtDefaultMD' => self::JWT_DEFAULT_MD_AES,
-                'publicKey' => $key,
+                'key' => $config['key'],
             ])
             ->decode($jwt)
             ->get();
@@ -344,15 +335,15 @@ class JWTTest extends Test
         $this->assertObjectHasProperty('data', $decode);
         $this->assertIsObject($decode->data);
         $this->assertInstanceOf(stdClass::class, $decode->data);
-        $this->assertObjectHasProperty('key', $decode->data);
-        $this->assertSame('value', $decode->data->key);
+        $this->assertObjectHasProperty('index-key', $decode->data);
+        $this->assertSame('value', $decode->data->{'index-key'});
     }
 
     #[Testing]
-    public function decodeWithMissingPublicKey(): void
+    public function decodeWithMissingKey(): void
     {
         $decode = $this->jwt
-            ->config([])
+            ->config(self::CONFIG_JWT_AES)
             ->decode(null)
             ->get();
 
@@ -362,7 +353,7 @@ class JWTTest extends Test
         $this->assertObjectHasProperty('message', $decode);
         $this->assertSame(500, $decode->code);
         $this->assertSame('error', $decode->status);
-        $this->assertSame('The publicKey has not been defined', $decode->message);
+        $this->assertSame('The key has not been defined.', $decode->message);
     }
 
     /**
@@ -370,17 +361,14 @@ class JWTTest extends Test
      */
     #[Testing]
     #[DataProvider('nullJwtDataProvider')]
-    public function decodeWithNullJwt(?string $value): void
+    public function decodeWithJwtIsNull(?string $value): void
     {
-        /** @var OpenSSLAsymmetricKey $publicKey */
-        $publicKey = $this->rsa
-            ->config(self::CONFIG_RSA)
-            ->create()
-            ->getPublicKey();
-
         $decode = $this->jwt
             ->config([
-                'publicKey' => $publicKey,
+                'key' => $this->rsa
+                    ->config(self::CONFIG_RSA)
+                    ->create()
+                    ->getPrivateKey(),
             ])
             ->decode($value)
             ->get();
@@ -392,7 +380,7 @@ class JWTTest extends Test
         $this->assertObjectHasProperty('message', $decode);
         $this->assertSame(500, $decode->code);
         $this->assertSame('error', $decode->status);
-        $this->assertSame('The JWT does not exist', $decode->message);
+        $this->assertSame('The JWT does not exist.', $decode->message);
     }
 
     /**
@@ -450,15 +438,12 @@ class JWTTest extends Test
             ->config(self::CONFIG_RSA)
             ->create();
 
-        /** @var OpenSSLAsymmetricKey $privateKey */
-        $privateKey = $this->rsa->getPrivateKey();
-
         $jwt = $this->jwt
             ->config([
-                'privateKey' => $privateKey,
+                'key' => $this->rsa->getPrivateKey(),
             ])
             ->encode([
-                'key' => 'value',
+                'index-key' => 'value',
             ])
             ->get();
 
@@ -477,12 +462,9 @@ class JWTTest extends Test
 
         $this->assertSame($jwt, $getJwt);
 
-        /** @var OpenSSLAsymmetricKey $publicKey */
-        $publicKey = $this->rsa->getPublicKey();
-
         $decode = $this->jwt
             ->config([
-                'publicKey' => $publicKey,
+                'key' => $this->rsa->getPublicKey(),
             ])
             ->decode($getJwt)
             ->get();
@@ -492,28 +474,8 @@ class JWTTest extends Test
         $this->assertObjectHasProperty('data', $decode);
         $this->assertIsObject($decode->data);
         $this->assertInstanceOf(stdClass::class, $decode->data);
-        $this->assertObjectHasProperty('key', $decode->data);
-        $this->assertSame('value', $decode->data->key);
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    #[Testing]
-    public function setEncryptionMethod(): void
-    {
-        $this->rsa
-            ->config(self::CONFIG_RSA)
-            ->create();
-
-        $encode = $this->jwt
-            ->setEncryptionMethod($this->rsa)
-            ->encode([
-                'key' => 'value',
-            ])
-            ->get();
-
-        $this->assertIsString($encode);
+        $this->assertObjectHasProperty('index-key', $decode->data);
+        $this->assertSame('value', $decode->data->{'index-key'});
     }
 
     /**
@@ -522,21 +484,22 @@ class JWTTest extends Test
     #[Testing]
     public function get(): void
     {
-        /** @var OpenSSLAsymmetricKey $privateKey */
-        $privateKey = $this->rsa
+        /** @var OpenSSLAsymmetricKey $key */
+        $key = $this->rsa
             ->config(self::CONFIG_RSA)
             ->create()
             ->getPrivateKey();
 
         $jwt = $this->jwt
             ->config([
-                'privateKey' => $privateKey,
+                'key' => $key,
             ])
             ->encode([
-                'key' => 'value',
+                'index-key' => 'value',
             ])
             ->get();
 
         $this->assertIsString($jwt);
+        $this->assertNotEmpty($jwt);
     }
 }

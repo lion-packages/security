@@ -7,19 +7,17 @@ namespace Lion\Security\Exceptions;
 use Exception;
 
 /**
- * This class represents custom exceptions for AES class processes
- *
- * @package Lion\Security\Exceptions
+ * This class represents custom exceptions for AES class processes.
  */
 class AESException extends Exception
 {
     /**
-     * Constructor method of the class
+     * Constructor method of the class.
      *
-     * @param string $message [The Exception message to throw]
-     * @param int $code [The Exception code]
-     * @param Exception|null $previous [The previus Throwable used for the
-     * exception chaining]
+     * @param string $message The Exception message to throw.
+     * @param int $code The Exception code.
+     * @param Exception|null $previous The previus Throwable used for the
+     * exception chaining.
      */
     public function __construct(string $message, int $code = 500, ?Exception $previous = null)
     {

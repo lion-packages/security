@@ -6,7 +6,6 @@ namespace Lion\Security;
 
 use Lion\Security\Exceptions\InvalidConfigException;
 use Lion\Security\Interfaces\ConfigInterface;
-use Lion\Security\Interfaces\EncryptionInterface;
 use Lion\Security\Interfaces\ObjectInterface;
 use OpenSSLAsymmetricKey;
 use RuntimeException;
@@ -18,7 +17,7 @@ use stdClass;
  *
  * @package Lion\Security
  */
-class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
+class RSA implements ConfigInterface, ObjectInterface
 {
     /**
      * [Represents the public key object]
@@ -97,7 +96,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     }
 
     /**
-     * Returns the current array/object with the generated data
+     * Returns the current array/object with the generated data.
      *
      * @return array<string, string>|stdClass
      *
@@ -113,10 +112,13 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Encrypt data with defined settings.
      *
-     * @throws InvalidConfigException [If the public key is null]
-     * @throws RuntimeException [If the encrypted data is incorrect]
+     * @param string $key Key name.
+     * @param string $value Key value.
+     *
+     * @throws InvalidConfigException If the public key is null.
+     * @throws RuntimeException If the encrypted data is incorrect.
      *
      * @infection-ignore-all
      */
@@ -125,7 +127,7 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
         $this->init();
 
         if (null === $this->publicKey) {
-            throw new InvalidConfigException('Public key cannot be null', 500);
+            throw new InvalidConfigException('Public key cannot be null.', 500);
         }
 
         if ($this->publicKey instanceof OpenSSLAsymmetricKey) {
@@ -144,9 +146,11 @@ class RSA implements ConfigInterface, EncryptionInterface, ObjectInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Decodes the data with the defined settings.
      *
-     * @throws InvalidConfigException [If the private key is null]
+     * @param array<string, string> $rows Encrypted data block.
+     *
+     * @throws InvalidConfigException If the private key is null.
      *
      * @infection-ignore-all
      */
