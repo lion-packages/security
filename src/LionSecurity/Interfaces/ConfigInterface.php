@@ -37,7 +37,7 @@ interface ConfigInterface
      * * publicKey
      *
      * @param array{
-     *     key: string|OpenSSLAsymmetricKey|null,
+     *     key: int|null|string|OpenSSLAsymmetricKey,
      *     urlPath?: string,
      *     rsaConfig?: string,
      *     rsaPrivateKeyBits?: int,

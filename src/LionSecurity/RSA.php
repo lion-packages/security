@@ -114,6 +114,9 @@ class RSA implements ConfigInterface, ObjectInterface
     /**
      * Encrypt data with defined settings.
      *
+     * @param string $key Key name.
+     * @param string $value Key value.
+     *
      * @throws InvalidConfigException If the public key is null.
      * @throws RuntimeException If the encrypted data is incorrect.
      *
@@ -143,9 +146,11 @@ class RSA implements ConfigInterface, ObjectInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Decodes the data with the defined settings.
      *
-     * @throws InvalidConfigException [If the private key is null]
+     * @param array<string, string> $rows Encrypted data block.
+     *
+     * @throws InvalidConfigException If the private key is null.
      *
      * @infection-ignore-all
      */

@@ -37,7 +37,7 @@ class JWT implements ConfigInterface
     /**
      * [Property that contains the configuration defined for JWT processes]
      *
-     * @var array<string, int|string|OpenSSLAsymmetricKey> $config
+     * @var array<string, int|null|string|OpenSSLAsymmetricKey> $config
      */
     private array $config = [];
 

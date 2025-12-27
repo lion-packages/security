@@ -74,7 +74,7 @@ class AES implements ConfigInterface, EncryptionInterface, ObjectInterface
      * Property that contains the configuration defined for AES processes.
      *
      * @var array{
-     *     key: string|OpenSSLAsymmetricKey|null
+     *     key: int|null|string|OpenSSLAsymmetricKey
      * } $config
      */
     private array $config;
