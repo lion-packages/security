@@ -9,7 +9,7 @@ RUN useradd -m lion && echo 'lion:lion' | chpasswd && usermod -aG sudo lion && u
 
 # Dependencies
 RUN apt-get update -y \
-    && apt-get install -y sudo nano zsh git curl wget unzip cron sendmail golang-go libpng-dev libzip-dev zlib1g-dev \
+    && apt-get install -y sudo nano zsh git curl wget unzip golang-go libpng-dev libzip-dev zlib1g-dev \
     && apt-get install -y libonig-dev libevent-dev libssl-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
