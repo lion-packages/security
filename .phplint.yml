@@ -1,0 +1,6 @@
+path:
+  - src
+exclude:
+  - vendor
+file-extensions:
+  - php
